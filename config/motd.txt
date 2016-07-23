@@ -1,3 +1,3 @@
 <!-- Most valid html will work in here, excluding images. -->
 <h3>wew lad</h3>
-<h4>NewStation is having scheduled play sessions every sunday at 4PM EST/8PM GMT. Drop in if want to play with more than 10 people.</h4>
+<h4>NewStation is having daily play sessions at 4PM EST/8PM GMT. Drop in if want to play with more than 1 person.</h4>
