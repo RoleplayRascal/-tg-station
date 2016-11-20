@@ -1,3 +1,3 @@
 <!-- Most valid html will work in here, excluding images. -->
 <h3>wew laddie</h3>
-<h4>OUTER PIZZA is having weekly DESIGNATED play sessions at 4PM EST/1AM UTC on saturdays. Drop in if want to play with more than 1 person.</h4>
+<h4>OUTER PIZZA is having weekly DESIGNATED play sessions at 4PM EST/9PM UTC on saturdays. Drop in if want to play with more than 1 person.</h4>
