@@ -1,3 +1,5 @@
+#define VENT_SOUND_DELAY 30
+
 /*
 Quick overview:
 
@@ -23,7 +25,7 @@ Pipelines + Other Objects -> Pipe network
 	var/global/list/iconsetids = list()
 	var/global/list/pipeimages = list()
 
-//	var/image/pipe_vision_img = null
+	var/image/pipe_vision_img = null
 
 /obj/machinery/atmospherics/New()
 	..()
@@ -38,11 +40,11 @@ Pipelines + Other Objects -> Pipe network
 		qdel(stored)
 		stored = null
 
-//	for(var/mob/living/L in src)
-//		L.remove_ventcrawl()
-//		L.forceMove(get_turf(src))
-//	if(pipe_vision_img)
-//		qdel(pipe_vision_img)
+	for(var/mob/living/L in src)
+		L.remove_ventcrawl()
+		L.forceMove(get_turf(src))
+	if(pipe_vision_img)
+		qdel(pipe_vision_img)
 
 	..()
 
@@ -189,7 +191,39 @@ Pipelines + Other Objects -> Pipe network
 	for(var/obj/machinery/atmospherics/target in get_step(src, direction))
 		if(target.initialize_directions & get_dir(target,src))
 			return target
+			
+/obj/machinery/atmospherics/relaymove(mob/living/user, direction)
+	if(!(direction & initialize_directions)) //cant go this way.
+		return
 
+	var/obj/machinery/atmospherics/target_move = findConnecting(direction)
+	if(target_move)
+		if(is_type_in_list(target_move, ventcrawl_machinery) && target_move.can_crawl_through())
+			user.remove_ventcrawl()
+			user.forceMove(target_move.loc) //handle entering and so on.
+			user.visible_message("<span class='notice'>You hear something squeezing through the ducts...</span>","<span class='notice'>You climb out the ventilation system.")
+		else if(target_move.can_crawl_through())
+			if(returnPipenet() != target_move.returnPipenet())
+				user.update_pipe_vision(target_move)
+			user.loc = target_move
+			user.client.eye = target_move  //Byond only updates the eye every tick, This smooths out the movement
+			if(world.time - user.last_played_vent > VENT_SOUND_DELAY)
+				user.last_played_vent = world.time
+				playsound(src, 'sound/machines/ventcrawl.ogg', 50, 1, -3)
+	else
+		if((direction & initialize_directions) || is_type_in_list(src, ventcrawl_machinery) && can_crawl_through()) //if we move in a way the pipe can connect, but doesn't - or we're in a vent
+			user.remove_ventcrawl()
+			user.forceMove(src.loc)
+			user.visible_message("<span class='notice'>You hear something squeezing through the ducts...</span>","<span class='notice'>You climb out the ventilation system.")
+	user.canmove = 0
+	spawn(1)
+		user.canmove = 1
+
+/obj/machinery/atmospherics/AltClick(mob/living/L)
+	if(is_type_in_list(src, ventcrawl_machinery))
+		L.handle_ventcrawl(src)
+		return
+	..()
 
 /obj/machinery/atmospherics/proc/can_crawl_through()
 	return 1

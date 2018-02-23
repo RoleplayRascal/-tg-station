@@ -266,6 +266,7 @@ Doesn't work on other aliens/AI.*/
 		for(var/atom/movable/A in user.stomach_contents)
 			user.stomach_contents.Remove(A)
 			A.loc = user.loc
+			A.update_pipe_vision()
 		user.visible_message("<span class='alertalien'>[user] hurls out the contents of their stomach!</span>")
 	return
 
