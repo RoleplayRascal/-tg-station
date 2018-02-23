@@ -9,3 +9,5 @@
 ###############################################################################################
 BigSlice = Host
 Sliceocelot = Host
+Kubbrz6 = Midimin
+M00nm4nhere = Midimin
