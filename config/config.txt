@@ -111,7 +111,7 @@ GUEST_BAN
 # SERVER ss13.example.com:2506
 
 ## forum address
-FORUMURL https://8ch.net/nt/index.html
+FORUMURL ircs://irc.rizon.net:6697/#pizzastation
 
 ## Wiki address
 WIKIURL http://8station.miraheze.org/

@@ -54,13 +54,13 @@
 					L = H.get_organdatum(pick("l_leg", "r_leg"))
 					H.Weaken(3)
 			if("l_hand", "r_hand")
-				if(!H.gloves)
-					L = H.get_organdatum(type)
-					H.Stun(3)
+				L = H.get_organdatum(type)
+				H.Stun(3)
+				H.apply_damage(5,BRUTE,(type))
 		if(L && L.exists())
 			var/obj/item/organ/limb/affecting = L.organitem
 			if(affecting)
-				if(affecting.take_damage(1, 0))
+				if(affecting.take_damage(5, 0))
 					H.update_damage_overlays(0)
 				H.updatehealth()
 	else if(ismouse(target))
@@ -124,7 +124,7 @@
 		finder.visible_message("<span class='warning'>[finder] accidentally sets off [src], breaking their fingers.</span>", \
 							   "<span class='warning'>You accidentally trigger [src]!</span>")
 		triggered(finder, finder.hand ? "l_hand" : "r_hand")
-		return 1	//end the search!
+		//return 1	//end the search!
 	return 0
 
 

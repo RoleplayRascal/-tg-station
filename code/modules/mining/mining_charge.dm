@@ -12,7 +12,7 @@
 	slot_flags = SLOT_BELT
 	var/detonating = 0 //If the charge is currently primed
 	var/safety = 1 //If the charge can be put on things other than rocks
-	var/explosionPower = 2 //The power of the explosion; larger powers = bigger boom
+	var/explosionPower = 3 //The power of the explosion; larger powers = bigger boom
 	var/atom/movable/putOn = null //The atom the charge is on
 	var/primedOverlay = null
 

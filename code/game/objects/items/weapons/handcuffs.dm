@@ -187,9 +187,9 @@
 			if(ishuman(AM))
 				var/mob/living/carbon/H = AM
 				if(H.lying)
-					H.apply_damage(20,BRUTE,"chest")
+					H.apply_damage(50,BRUTE,"chest")
 				else
-					H.apply_damage(20,BRUTE,(pick("l_leg", "r_leg")))
+					H.apply_damage(50,BRUTE,(pick("l_leg", "r_leg")))
 				if(!H.legcuffed) //beartrap can't cuff you leg if there's already a beartrap or legcuffs.
 					H.legcuffed = src
 					src.loc = H
@@ -197,5 +197,5 @@
 					feedback_add_details("handcuffs","B") //Yes, I know they're legcuffs. Don't change this, no need for an extra variable. The "B" is used to tell them apart.
 
 			else
-				L.apply_damage(20,BRUTE)
+				L.apply_damage(50,BRUTE)
 	..()
