@@ -28,8 +28,8 @@
 # +EVERYTHING (or +HOST or +ALL) = Simply gives you everything without having to type every flag
 
 Midimin			= +SOUNDS
-Moderator		= +ADMIN +BAN
-Trial Admin		= +@ +REJUV +STEALTH +FUN +SOUNDS
+Moderator		= +@ +ADMIN +BAN
+Trial Admin		= +@ +REJUV +STEALTH +FUN
 Admin			= +@ +VAREDIT +SPAWN +POSSESS
 Game Master		= +@ +DEBUG +SERVER +BUILD
 Host            = +EVERYTHING
