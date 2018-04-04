@@ -180,6 +180,7 @@
 	else
 		src << "You will no longer hear ship ambience."
 		src << sound(null, repeat = 0, wait = 0, volume = 0, channel = 2)
+		src << sound(null, repeat = 0, wait = 0, volume = 0, channel = 1)
 		src.ambience_playing = 0
 	feedback_add_details("admin_verb", "SAmbi") //If you are copy-pasting this, I bet you read this comment expecting to see the same thing :^)
 
