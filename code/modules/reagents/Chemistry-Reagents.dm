@@ -111,4 +111,3 @@
 	if(prob(30))
 		M << "<span class = 'boldannounce'>You're not feeling good at all! You really need some [name].</span>"
 	return
-
