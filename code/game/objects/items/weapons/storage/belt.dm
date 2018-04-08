@@ -30,6 +30,7 @@
 		/obj/item/device/t_scanner,
 		/obj/item/device/analyzer,
 		/obj/item/weapon/extinguisher/mini
+		/obj/item/device/integrated_electronics/wirer,
 		)
 
 /obj/item/weapon/storage/belt/utility/full/New()
