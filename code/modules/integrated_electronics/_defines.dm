@@ -19,7 +19,7 @@
 	var/list/activator_names = list()
 	var/last_used = 0 //Uses world.time
 	var/complexity = 1 //This acts as a limitation on building machines, more resource-intensive components cost more 'space'.
-	var/power_required = 5 //w
+	var/cooldown_per_use = 1 SECONDS
 
 /obj/item/integrated_circuit/examine(mob/user)
 	..()
@@ -72,6 +72,9 @@
 			A.name = "[activator_names[i]]"
 			i++
 
+/obj/item/integrated_circuit/proc/on_data_written() //Override this for special behaviour when new data gets pushed to the circuit.
+	return
+
 /obj/item/integrated_circuit/Destroy()
 	for(var/datum/integrated_io/I in inputs)
 		qdel(I)
@@ -92,7 +95,10 @@
 
 	var/mob/M = usr
 
-	var/input = sanitize_text(input("What do you want to name the circuit?", ,""))
+	if(!M.canmove || M.stat || M.restrained())
+		return
+
+	var/input = sanitize_text(input("What do you want to name the circuit?","Rename", src.name), MAX_NAME_LEN)
 
 	if(src && input)
 		M << "<span class='notice'>The circuit '[src.name]' is now labeled '[input]'.</span>"
@@ -156,13 +162,14 @@
 								words += "<a href=?src=\ref[src];wire=1;user=\ref[user];pin=\ref[io]>\[[linked.name]\]</a> \
 								@ <a href=?src=\ref[linked.holder];examine=1;user=\ref[user]>[linked.holder]</a><br>"
 						if(outputs.len > inputs.len)
-							height = Floor(outputs.len / inputs.len)
-						//world << "I wrote [words] at ([i],[j])."
+						//	height = Floor(outputs.len / inputs.len)
+							height = 1 // Because of bugs, if there's more outputs than inputs, it causes the output side to be hidden.
+						//world << "I wrote [words] at ([i],[j]).  Height = [height]."
 				if(2)
 					if(i == 1)
 						words = "[src.name]<br><br>[src.desc]"
 						height = row_height
-						//world << "I wrote the center piece because i was equal to 1, at ([i],[j])."
+						//world << "I wrote the center piece because i was equal to 1, at ([i],[j]).  Height = [height]."
 					else
 						continue
 				if(3)
@@ -179,8 +186,9 @@
 								words += "<a href=?src=\ref[src];wire=1;user=\ref[user];pin=\ref[io]>\[[linked.name]\]</a> \
 								@ <a href=?src=\ref[linked.holder];examine=1;user=\ref[user]>[linked.holder]</a><br>"
 						if(inputs.len > outputs.len)
-							height = Floor(inputs.len / outputs.len)
-						//world << "I wrote [words] at ([i],[j])."
+						//	height = Floor(inputs.len / outputs.len)
+							height = 1 // See above.
+						//world << "I wrote [words] at ([i],[j]).  Height = [height]."
 			HTML += "<td align='center' rowspan='[height]'>[words]</td>"
 			//HTML += "<td align='center'>[words]</td>"
 			//world << "Writing to ([i],[j])."
@@ -209,10 +217,14 @@
 	HTML += "</table>"
 	HTML += "</div>"
 
+	HTML += "<br><font color='0000FF'>Complexity: [complexity]</font>"
 	HTML += "<br><font color='0000FF'>[extended_desc]</font>"
 
 	HTML += "</body></html>"
 	user << browse(HTML, "window=circuit-\ref[src];size=600x350;border=1;can_resize=1;can_close=1;can_minimize=1")
+
+	//user << sanitize_text(HTML, "window=debug;size=400x400;border=1;can_resize=1;can_close=1;can_minimize=1")
+	//world << sanitize_text(HTML)
 
 	user.set_machine(src)
 	onclose(user, "circuit-\ref[src]")
@@ -224,17 +236,31 @@
 	if(!user || !user.Adjacent(get_turf(src)) )
 		return 1
 
+	if(!user.canmove || user.stat || user.restrained())
+		return
+
 	if(href_list["wire"])
 		if(ishuman(user) && Adjacent(user))
 			var/mob/living/carbon/human/H = user
-			var/obj/item/device/integrated_electronics/wirer/wirer = null
-			if(istype(H.r_hand, /obj/item/device/integrated_electronics/wirer))
-				wirer = H.r_hand
-			else if(istype(H.l_hand, /obj/item/device/integrated_electronics/wirer))
-				wirer = H.l_hand
+			var/obj/held_item = H.get_active_hand()
 
-			if(wirer && pin)
-				wirer.wire(pin, user)
+			if(istype(held_item, /obj/item/device/integrated_electronics/wirer))
+				var/obj/item/device/integrated_electronics/wirer/wirer = held_item
+				if(pin)
+					wirer.wire(pin, user)
+
+			else if(istype(held_item, /obj/item/device/integrated_electronics/debugger))
+				var/obj/item/device/integrated_electronics/debugger/debugger = held_item
+				if(pin)
+					debugger.write_data(pin, user)
+
+	//		if(istype(H.r_hand, /obj/item/device/integrated_electronics/wirer))
+	//			wirer = H.r_hand
+	//		else if(istype(H.l_hand, /obj/item/device/integrated_electronics/wirer))
+	//			wirer = H.l_hand
+
+	//		if(wirer && pin)
+	//			wirer.wire(pin, user)
 			else
 				user << "<span class='warning'>You can't do a whole lot without tools.</span>"
 
@@ -265,7 +291,7 @@
 	..()
 
 /datum/integrated_io/proc/display_data()
-	if(!data)
+	if(isnull(data))
 		return "(null)" // Empty data means nothing to show.
 	if(istext(data))
 		return "(\"[data]\")" // Wraps the 'string' in escaped quotes, so that people know it's a 'string'.
@@ -281,18 +307,23 @@
 	if(isnull(data))
 		return
 	if(isnum(data))
-		data = rand(-10000, 10000)
+		write_data_to_pin(rand(-10000, 10000))
 	if(istext(data))
-		data = "ERROR"
+		write_data_to_pin("ERROR")
 	push_data()
 
 /datum/integrated_io/activate/scramble()
 	push_data()
 
+/datum/integrated_io/proc/write_data_to_pin(var/new_data)
+	if(isnull(new_data) || isnum(new_data) || istext(new_data) || istype(new_data, /atom/) ) // Anything else is a type we don't want.
+		data = new_data
+		holder.on_data_written()
+
 /datum/integrated_io/proc/push_data()
 	if(linked.len)
 		for(var/datum/integrated_io/io in linked)
-			io.data = data
+			io.write_data_to_pin(data)
 
 /datum/integrated_io/activate/push_data()
 	if(linked.len)
@@ -302,7 +333,7 @@
 /datum/integrated_io/proc/pull_data()
 	if(linked.len)
 		for(var/datum/integrated_io/io in linked)
-			data = io.data
+			write_data_to_pin(io.data)
 
 /datum/integrated_io/proc/get_linked_to_desc()
 	if(linked.len)
@@ -341,8 +372,8 @@
 	for(var/datum/integrated_io/input/I in inputs)
 		I.push_data()
 
-/obj/item/integrated_circuit/proc/work()
-	if(last_used + 2 SECONDS > world.time) // All intergrated circuits have an internal cooldown of two seconds to protect from spam.
+/obj/item/integrated_circuit/proc/work(var/datum/integrated_io/io)
+	if(last_used + cooldown_per_use > world.time) 	// All intergrated circuits have an internal cooldown, to protect from spam.
 		return 0
 	last_used = world.time
 	return 1

@@ -32,6 +32,7 @@ other types of metals and chemistry for reagents).
 /datum/design						//Datum for object designs, used in construction
 	var/name = "Name"					//Name of the created object.
 	var/desc = "Desc"					//Description of the created object.
+	var/item_name = null			//An item name before it is modified by various name-modifying procs
 	var/id = "id"						//ID of the created object for easy refernece. Alphanumeric, lower-case, no symbols
 	var/list/req_tech = list()			//IDs of that techs the object originated from and the minimum level requirements.			//Reliability modifier of the device at it's starting point.
 	var/reliability = 100				//Reliability of the device.
@@ -41,6 +42,33 @@ other types of metals and chemistry for reagents).
 	var/build_path = ""					//The file path of the object that gets created
 	var/list/category = null 			//Primarily used for Mech Fabricators, but can be used for anything
 
+/datum/design/New()
+	..()
+	item_name = name
+	AssembleDesignInfo()
+
+//These procs are used in subtypes for assigning names and descriptions dynamically
+/datum/design/proc/AssembleDesignInfo()
+	AssembleDesignName()
+	AssembleDesignDesc()
+	return
+
+/datum/design/proc/AssembleDesignName()
+	if(!name && build_path)					//Get name from build path if posible
+		var/atom/movable/A = build_path
+		name = initial(A.name)
+		item_name = name
+	return
+
+/datum/design/proc/AssembleDesignDesc()
+	if(!desc)								//Try to make up a nice description if we don't have one
+		desc = "Allows for the construction of \a [item_name]."
+	return
+
+//Returns a new instance of the item for this design
+//This is to allow additional initialization to be performed, including possibly additional contructor arguments.
+/datum/design/proc/Fabricate(var/newloc, var/fabricator)
+	return new build_path(newloc)
 
 //A proc to calculate the reliability of a design based on tech levels and innate modifiers.
 //Input: A list of /datum/tech; Output: The new reliabilty.
@@ -419,3 +447,363 @@ other types of metals and chemistry for reagents).
 	materials = list(MAT_METAL = 1000, MAT_GLASS = 500, MAT_PLASMA = 1500, MAT_URANIUM = 200)
 	build_path = /obj/item/weapon/weldingtool/experimental
 	category = list("Equipment")  //fuck you tg
+
+
+/////////////////////////////////////////
+//////Integrated Circuits////////////////
+/////////////////////////////////////////
+
+/datum/design/item/wirer
+	name = "Custom wirer tool"
+	id = "wirer"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
+	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 2500)
+	build_type = PROTOLATHE
+	build_path = /obj/item/device/integrated_electronics/wirer
+	category = list("Electronics")
+
+/datum/design/item/debugger
+	name = "Custom circuit debugger tool"
+	id = "debugger"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
+	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 2500)
+	build_path = /obj/item/device/integrated_electronics/debugger
+
+
+/datum/design/item/custom_circuit_assembly
+	name = "Small custom assembly"
+	desc = "An customizable assembly for simple, small devices."
+	id = "assembly-small"
+	build_type = PROTOLATHE
+	req_tech = list(TECH_MATERIAL = 3, TECH_ENGINEERING = 2, TECH_POWER = 2)
+	materials = list(DEFAULT_WALL_MATERIAL = 10000)
+	build_path = /obj/item/device/electronic_assembly
+	category = list("Electronics")
+
+/datum/design/item/custom_circuit_assembly/medium
+	name = "Medium custom assembly"
+	desc = "An customizable assembly suited for more ambitious mechanisms."
+	id = "assembly-medium"
+	req_tech = list(TECH_MATERIAL = 4, TECH_ENGINEERING = 3, TECH_POWER = 3)
+	materials = list(DEFAULT_WALL_MATERIAL = 20000)
+	build_path = /obj/item/device/electronic_assembly/medium
+
+/datum/design/item/custom_circuit_assembly/large
+	name = "Large custom assembly"
+	desc = "An customizable assembly for large machines."
+	id = "assembly-large"
+	req_tech = list(TECH_MATERIAL = 5, TECH_ENGINEERING = 4, TECH_POWER = 4)
+	materials = list(DEFAULT_WALL_MATERIAL = 40000)
+	build_path = /obj/item/device/electronic_assembly/large
+
+/datum/design/circuit/integrated_circuit
+	req_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2)
+	category = list("Electronics")
+
+/datum/design/circuit/integrated_circuit/AssembleDesignName()
+	..()
+	name = "Custom circuitry ([item_name])"
+
+/datum/design/circuit/integrated_circuit/AssembleDesignDesc()
+	if(!desc)
+		desc = "Allows for the construction of \a [name] custom circuit."
+
+/datum/design/circuit/integrated_circuit/arithmetic/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Arithmetic\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/arithmetic/addition
+	id = "cc-addition"
+	build_path = /obj/item/integrated_circuit/arithmetic/addition
+
+/datum/design/circuit/integrated_circuit/arithmetic/subtraction
+	id = "cc-subtraction"
+	build_path = /obj/item/integrated_circuit/arithmetic/subtraction
+
+/datum/design/circuit/integrated_circuit/arithmetic/multiplication
+	id = "cc-multiplication"
+	build_path = /obj/item/integrated_circuit/arithmetic/multiplication
+
+/datum/design/circuit/integrated_circuit/arithmetic/division
+	id = "cc-division"
+	build_path = /obj/item/integrated_circuit/arithmetic/division
+
+/datum/design/circuit/integrated_circuit/arithmetic/absolute
+	id = "cc-absolute"
+	build_path = /obj/item/integrated_circuit/arithmetic/absolute
+
+/datum/design/circuit/integrated_circuit/arithmetic/average
+	id = "cc-average"
+	build_path = /obj/item/integrated_circuit/arithmetic/average
+
+/datum/design/circuit/integrated_circuit/arithmetic/pi
+	id = "cc-pi"
+	build_path = /obj/item/integrated_circuit/arithmetic/pi
+
+/datum/design/circuit/integrated_circuit/arithmetic/random
+	id = "cc-random"
+	build_path = /obj/item/integrated_circuit/arithmetic/random
+
+
+
+/datum/design/circuit/integrated_circuit/converter/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Conversion\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/converter/num2text
+	id = "cc-num2text"
+	build_path = /obj/item/integrated_circuit/converter/num2text
+
+/datum/design/circuit/integrated_circuit/converter/text2num
+	id = "cc-text2num"
+	build_path = /obj/item/integrated_circuit/converter/text2num
+
+/datum/design/circuit/integrated_circuit/converter/ref2text
+	id = "cc-ref2text"
+	build_path = /obj/item/integrated_circuit/converter/ref2text
+
+/datum/design/circuit/integrated_circuit/converter/lowercase
+	id = "cc-lowercase"
+	build_path = /obj/item/integrated_circuit/converter/lowercase
+
+/datum/design/circuit/integrated_circuit/converter/uppercase
+	id = "cc-uppercase"
+	build_path = /obj/item/integrated_circuit/converter/uppercase
+
+/datum/design/circuit/integrated_circuit/converter/concatenatior
+	id = "cc-concatenatior"
+	build_path = /obj/item/integrated_circuit/converter/concatenatior
+
+
+
+/datum/design/circuit/integrated_circuit/coordinate/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Coordinate\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/coordinate/gps
+	id = "cc-gps"
+	build_path = /obj/item/integrated_circuit/gps
+
+/datum/design/circuit/integrated_circuit/coordinate/abs_to_rel_coords
+	id = "cc-abs_to_rel_coords"
+	build_path = /obj/item/integrated_circuit/abs_to_rel_coords
+
+
+
+/datum/design/circuit/integrated_circuit/transfer/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Transfer\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/transfer/splitter
+	id = "cc-splitter"
+	build_path = /obj/item/integrated_circuit/transfer/splitter
+
+/datum/design/circuit/integrated_circuit/transfer/splitter4
+	id = "cc-splitter4"
+	build_path = /obj/item/integrated_circuit/transfer/splitter/medium
+
+/datum/design/circuit/integrated_circuit/transfer/splitter8
+	id = "cc-splitter8"
+	build_path = /obj/item/integrated_circuit/transfer/splitter/large
+
+/datum/design/circuit/integrated_circuit/transfer/activator_splitter
+	id = "cc-activator_splitter"
+	build_path = /obj/item/integrated_circuit/transfer/activator_splitter
+
+/datum/design/circuit/integrated_circuit/transfer/activator_splitter4
+	id = "cc-activator_splitter4"
+	build_path = /obj/item/integrated_circuit/transfer/activator_splitter/medium
+
+/datum/design/circuit/integrated_circuit/transfer/activator_splitter8
+	id = "cc-activator_splitter8"
+	build_path = /obj/item/integrated_circuit/transfer/activator_splitter/large
+
+
+
+/datum/design/circuit/integrated_circuit/input_output/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Input/Output\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/input_output/button
+	id = "cc-button"
+	build_path = /obj/item/integrated_circuit/input/button
+
+/datum/design/circuit/integrated_circuit/input_output/numberpad
+	id = "cc-numberpad"
+	build_path = /obj/item/integrated_circuit/input/numberpad
+
+/datum/design/circuit/integrated_circuit/input_output/textpad
+	id = "cc-textpad"
+	build_path = /obj/item/integrated_circuit/input/textpad
+
+/datum/design/circuit/integrated_circuit/input_output/screen
+	id = "cc-screen"
+	build_path = /obj/item/integrated_circuit/output/screen
+
+/datum/design/circuit/integrated_circuit/input_output/med_scanner
+	id = "cc-medscanner"
+	build_path = /obj/item/integrated_circuit/input/med_scanner
+	req_tech = list(TECH_MATERIAL = 2, TECH_MAGNETS = 2, TECH_BIOMED = 2)
+
+/datum/design/circuit/integrated_circuit/input_output/adv_med_scanner
+	id = "cc-advmedscanner"
+	build_path = /obj/item/integrated_circuit/input/adv_med_scanner
+	req_tech = list(TECH_MATERIAL = 2, TECH_MAGNETS = 3, TECH_BIOMED = 4)
+
+/datum/design/circuit/integrated_circuit/input_output/local_locator
+	id = "cc-locallocator"
+	build_path = /obj/item/integrated_circuit/input/local_locator
+
+/datum/design/circuit/integrated_circuit/input_output/signaler
+	id = "cc-signaler"
+	build_path = /obj/item/integrated_circuit/input/signaler
+
+/datum/design/circuit/integrated_circuit/input_output/light
+	id = "cc-light"
+	build_path = /obj/item/integrated_circuit/output/light
+
+/datum/design/circuit/integrated_circuit/input_output/adv_light
+	id = "cc-adv_light"
+	build_path = /obj/item/integrated_circuit/output/light/advanced
+
+/datum/design/circuit/integrated_circuit/input_output/beeper
+	id = "cc-sound_beeper"
+	build_path = /obj/item/integrated_circuit/output/sound/beeper
+
+/datum/design/circuit/integrated_circuit/input_output/beepsky_sound
+	id = "cc-sound_beepsky"
+	build_path = /obj/item/integrated_circuit/output/sound/beepsky
+	req_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_ILLEGAL = 1)
+
+/datum/design/circuit/integrated_circuit/input_output/EPv2
+	id = "cc-epv2"
+	build_path = /obj/item/integrated_circuit/input/EPv2
+	req_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_MAGNETS = 2, TECH_BLUESPACE = 2)
+
+/datum/design/circuit/integrated_circuit/logic/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Logic\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/logic/equals
+	id = "cc-equals"
+	build_path = /obj/item/integrated_circuit/logic/equals
+
+/datum/design/circuit/integrated_circuit/logic/not
+	id = "cc-not"
+	build_path = /obj/item/integrated_circuit/logic/not
+
+/datum/design/circuit/integrated_circuit/logic/and
+	id = "cc-and"
+	build_path = /obj/item/integrated_circuit/logic/and
+
+/datum/design/circuit/integrated_circuit/logic/or
+	id = "cc-or"
+	build_path = /obj/item/integrated_circuit/logic/or
+
+/datum/design/circuit/integrated_circuit/logic/less_than
+	id = "cc-less_than"
+	build_path = /obj/item/integrated_circuit/logic/less_than
+
+/datum/design/circuit/integrated_circuit/logic/less_than_or_equal
+	id = "cc-less_than_or_equal"
+	build_path = /obj/item/integrated_circuit/logic/less_than_or_equal
+
+/datum/design/circuit/integrated_circuit/logic/greater_than
+	id = "cc-greater_than"
+	build_path = /obj/item/integrated_circuit/logic/greater_than
+
+/datum/design/circuit/integrated_circuit/logic/greater_than_or_equal
+	id = "cc-greater_than_or_equal"
+	build_path = /obj/item/integrated_circuit/logic/greater_than_or_equal
+
+
+
+/datum/design/circuit/integrated_circuit/manipulation/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Manipulation\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/manipulation/weapon_firing
+	id = "cc-weapon_firing"
+	build_path = /obj/item/integrated_circuit/manipulation/weapon_firing
+	req_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3, TECH_COMBAT = 4)
+
+/datum/design/circuit/integrated_circuit/manipulation/smoke
+	id = "cc-smoke"
+	build_path = /obj/item/integrated_circuit/manipulation/smoke
+	req_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3, TECH_BIO = 4)
+
+/datum/design/circuit/integrated_circuit/manipulation/locomotion
+	name = "locomotion"
+	id = "cc-locomotion"
+	build_path = /obj/item/integrated_circuit/manipulation/locomotion
+	req_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3)
+
+
+/datum/design/circuit/integrated_circuit/memory/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Memory\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/memory
+	id = "cc-memory"
+	build_path = /obj/item/integrated_circuit/memory
+
+/datum/design/circuit/integrated_circuit/memory/medium
+	id = "cc-memory4"
+	build_path = /obj/item/integrated_circuit/memory/medium
+
+/datum/design/circuit/integrated_circuit/memory/large
+	id = "cc-memory8"
+	build_path = /obj/item/integrated_circuit/memory/large
+
+/datum/design/circuit/integrated_circuit/memory/huge
+	id = "cc-memory16"
+	build_path = /obj/item/integrated_circuit/memory/huge
+
+/datum/design/circuit/integrated_circuit/memory/constant
+	id = "cc-constant"
+	build_path = /obj/item/integrated_circuit/memory/constant
+
+/datum/design/circuit/integrated_circuit/time/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Time\] ([item_name])"
+
+/datum/design/circuit/integrated_circuit/time/delay
+	id = "cc-delay"
+	build_path = /obj/item/integrated_circuit/time/delay
+
+/datum/design/circuit/integrated_circuit/time/delay/five_sec
+	id = "cc-five_sec_delay"
+	build_path = /obj/item/integrated_circuit/time/delay/five_sec
+
+/datum/design/circuit/integrated_circuit/time/delay/one_sec
+	id = "cc-one_sec_delay"
+	build_path = /obj/item/integrated_circuit/time/delay/one_sec
+
+/datum/design/circuit/integrated_circuit/time/delay/half_sec
+	id = "cc-half_sec_delay"
+	build_path = /obj/item/integrated_circuit/time/delay/half_sec
+
+/datum/design/circuit/integrated_circuit/time/delay/tenth_sec
+	id = "cc-tenth_sec_delay"
+	build_path = /obj/item/integrated_circuit/time/delay/tenth_sec
+
+/datum/design/circuit/integrated_circuit/time/delay/custom
+	id = "cc-custom_delay"
+	build_path = /obj/item/integrated_circuit/time/delay/custom
+
+/datum/design/circuit/integrated_circuit/time/ticker
+	id = "cc-ticker"
+	build_path = /obj/item/integrated_circuit/time/ticker
+
+/datum/design/circuit/integrated_circuit/time/ticker/slow
+	id = "cc-ticker_slow"
+	build_path = /obj/item/integrated_circuit/time/ticker/slow
+
+/datum/design/circuit/integrated_circuit/time/ticker/fast
+	id = "cc-ticker_fast"
+	build_path = /obj/item/integrated_circuit/time/ticker/fast
+	req_tech = list(TECH_ENGINEERING = 4, TECH_DATA = 4)
+
+/datum/design/circuit/integrated_circuit/time/clock
+	id = "cc-clock"
+	build_path = /obj/item/integrated_circuit/time/clock
