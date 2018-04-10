@@ -807,3 +807,10 @@ other types of metals and chemistry for reagents).
 /datum/design/circuit/integrated_circuit/time/clock
 	id = "cc-clock"
 	build_path = /obj/item/integrated_circuit/time/clock
+
+
+/datum/design/circuit/tcom/exonet_node
+	name = "exonet node"
+	id = "tcom-exonet_node"
+	req_tech = list(TECH_DATA = 5, TECH_ENGINEERING = 5, TECH_BLUESPACE = 4)
+	build_path = /obj/item/weapon/circuitboard/telecomms/exonet_node
