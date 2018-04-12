@@ -15,6 +15,7 @@
 // BEGIN_INCLUDE
 #include "_maps\metastation.dm"
 #include "code\_compile_options.dm"
+#include "code\_macros.dm"
 #include "code\hub.dm"
 #include "code\world.dm"
 #include "code\__DATASTRUCTURES\heap.dm"
@@ -179,6 +180,7 @@
 #include "code\datums\spell.dm"
 #include "code\datums\supplypacks.dm"
 #include "code\datums\uplink_item.dm"
+#include "code\datums\weakref.dm"
 #include "code\datums\diseases\_disease.dm"
 #include "code\datums\diseases\_MobProcs.dm"
 #include "code\datums\diseases\anxiety.dm"
@@ -1144,6 +1146,7 @@
 #include "code\modules\integrated_electronics\memory.dm"
 #include "code\modules\integrated_electronics\time.dm"
 #include "code\modules\integrated_electronics\tools.dm"
+#include "code\modules\integrated_electronics\~defines.dm"
 #include "code\modules\library\lib_items.dm"
 #include "code\modules\library\lib_machines.dm"
 #include "code\modules\library\lib_readme.dm"

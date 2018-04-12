@@ -117,6 +117,9 @@
 
 /obj/item/device/integrated_electronics/debugger/attack_self(mob/user)
 	var/type_to_use = input("Please choose a type to use.","[src] type setting") as null|anything in list("string","number","ref", "null")
+	//if(!CanInteract(user,src))
+	//	return
+
 	var/new_data = null
 	switch(type_to_use)
 		if("string")
@@ -150,9 +153,14 @@
 /obj/item/device/integrated_electronics/debugger/proc/write_data(var/datum/integrated_io/io, mob/user)
 	if(io.io_type == DATA_CHANNEL)
 		io.write_data_to_pin(data_to_write)
-		user << "<span class='notice'>You write [data_to_write] to \the [io.holder]'s [io].</span>"
+		var/data_to_show = data_to_write
+		if(isweakref(data_to_write))
+			var/weakref/w = data_to_write
+			var/atom/A = w.resolve()
+			data_to_show = A.name
+		user << "<span class='notice'>You write [data_to_write ? data_to_show : "NULL"]' to the '[io]' pin of \the [io.holder].</span>"
 	else if(io.io_type == PULSE_CHANNEL)
-		io.holder.work()
+		io.holder.check_then_do_work()
 		user << "<span class='notice'>You pulse \the [io.holder]'s [io].</span>"
 
 	io.holder.interact(user) // This is to update the UI.
@@ -198,29 +206,32 @@
 		)
 
 	for(var/thing in types_to_spawn)
-		var/i = 3
-		while(i)
+		var/obj/item/integrated_circuit/ic = thing
+		if(initial(ic.category) == thing)
+			continue
+
+		for(var/i = 1 to 4)
 			new thing(src)
-			i--
 
 	new /obj/item/device/electronic_assembly(src)
 	new /obj/item/device/integrated_electronics/wirer(src)
 	new /obj/item/device/integrated_electronics/debugger(src)
 	new /obj/item/weapon/crowbar(src)
 	new /obj/item/weapon/screwdriver(src)
+	make_exact_fit()
 
 /obj/item/weapon/storage/bag/circuits/all/New()
 	..()
-	var/list/types_to_spawn = typesof(/obj/item/integrated_circuit)
-
-	for(var/thing in types_to_spawn)
-		var/i = 10
-		while(i)
+	for(var/thing in subtypesof(/obj/item/integrated_circuit))
+		var/obj/item/integrated_circuit/ic = thing
+		if(initial(ic.category) == thing)
+			continue
+		for(var/i = 1 to 10)
 			new thing(src)
-			i--
 
 	new /obj/item/device/electronic_assembly(src)
 	new /obj/item/device/integrated_electronics/wirer(src)
 	new /obj/item/device/integrated_electronics/debugger(src)
 	new /obj/item/weapon/crowbar(src)
 	new /obj/item/weapon/screwdriver(src)
+	make_exact_fit()
