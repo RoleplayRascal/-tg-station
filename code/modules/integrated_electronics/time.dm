@@ -4,7 +4,6 @@
 	complexity = 2
 	inputs = list()
 	outputs = list()
-	category = /obj/item/integrated_circuit/time
 
 /obj/item/integrated_circuit/time/delay
 	name = "two-sec delay circuit"

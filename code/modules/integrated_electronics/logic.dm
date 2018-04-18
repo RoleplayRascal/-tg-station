@@ -5,7 +5,11 @@
 	complexity = 3
 	outputs = list("result")
 	activators = list("compare", "on true result")
-	category = /obj/item/integrated_circuit/logic
+	autopulse = 1
+
+/obj/item/integrated_circuit/logic/on_data_written()
+	if(autopulse == 1)
+		check_then_do_work()
 
 /obj/item/integrated_circuit/logic/do_work()
 	var/datum/integrated_io/O = outputs[1]
@@ -16,7 +20,6 @@
 
 /obj/item/integrated_circuit/logic/binary
 	inputs = list("A","B")
-	category = /obj/item/integrated_circuit/logic/binary
 
 /obj/item/integrated_circuit/logic/binary/do_work()
 	var/datum/integrated_io/A = inputs[1]
@@ -30,7 +33,6 @@
 
 /obj/item/integrated_circuit/logic/unary
 	inputs = list("A")
-	category = /obj/item/integrated_circuit/logic/unary
 
 /obj/item/integrated_circuit/logic/unary/do_work()
 	var/datum/integrated_io/A = inputs[1]

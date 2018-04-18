@@ -50,4 +50,4 @@
 
 #define to_chat(target, message) target << message
 
-//#define CanInteract(user,src) user.canUseTopic(src,0,0) //I'll figure this out later
+#define CanInteract(user,src) user.Adjacent(src) //changed so you need to be next to it is all

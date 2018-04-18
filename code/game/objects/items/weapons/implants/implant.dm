@@ -70,6 +70,17 @@
 		removed(imp_in)
 	..()
 
+/obj/item/weapon/implant/attackby(obj/item/I, mob/user)
+	if(istype(I, /obj/item/weapon/implanter))
+		var/obj/item/weapon/implanter/implanter = I
+		if(implanter.imp)
+			return // It's full.
+		user.remove_from_mob(src)
+		forceMove(implanter)
+		implanter.imp = src
+		implanter.update_icon()
+	else
+		..()
 
 /obj/item/weapon/implant/proc/get_data()
 	return "No information available"

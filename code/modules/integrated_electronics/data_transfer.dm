@@ -1,3 +1,11 @@
+/obj/item/integrated_circuit/transfer
+	category_text = "Data Transfer"
+	autopulse = 1
+
+/obj/item/integrated_circuit/transfer/on_data_written()
+	if(autopulse == 1)
+		check_then_do_work()
+
 /obj/item/integrated_circuit/transfer/splitter
 	name = "splitter"
 	desc = "Splits incoming data into all of the output pins."

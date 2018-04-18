@@ -1,37 +1,63 @@
+#define IC_COMPONENTS_BASE		20
+#define IC_COMPLEXITY_BASE		80
+
 /obj/item/device/electronic_assembly
 	name = "electronic assembly"
 	desc = "It's a case, for building electronics with."
 	w_class = 2
 	icon = 'icons/obj/electronic_assemblies.dmi'
 	icon_state = "setup_small"
-	var/max_components = 10
-	var/max_complexity = 30
+	var/show_messages = TRUE
+	var/max_components = IC_COMPONENTS_BASE
+	var/max_complexity = IC_COMPLEXITY_BASE
 	var/opened = 0
 
 /obj/item/device/electronic_assembly/medium
 	name = "electronic mechanism"
 	icon_state = "setup_medium"
 	w_class = 3
-	max_components = 20
-	max_complexity = 50
+	max_components = IC_COMPONENTS_BASE * 2
+	max_complexity = IC_COMPLEXITY_BASE * 2
 
 /obj/item/device/electronic_assembly/large
 	name = "electronic machine"
-	icon_state = "setup"
+	icon_state = "setup_large"
 	w_class = 4
-	max_components = 30
-	max_complexity = 60
+	max_components = IC_COMPONENTS_BASE * 3
+	max_complexity = IC_COMPLEXITY_BASE * 3
 
 /obj/item/device/electronic_assembly/drone
 	name = "electronic drone"
 	icon_state = "setup_drone"
 	w_class = 3
-	max_components = 25
-	max_complexity = 100
+	max_components = IC_COMPONENTS_BASE * 1.5
+	max_complexity = IC_COMPLEXITY_BASE * 1.5
+
+/obj/item/device/electronic_assembly/implant
+	name = "electronic implant"
+	icon_state = "setup_implant"
+	w_class = 1
+	max_components = IC_COMPONENTS_BASE / 2
+	max_complexity = IC_COMPLEXITY_BASE / 2
+	var/obj/item/weapon/implant/integrated_circuit/implant = null
+
+/obj/item/device/electronic_assembly/implant/update_icon()
+	..()
+	implant.icon_state = icon_state
+
+
+/obj/item/device/electronic_assembly/implant/proc/nano_host()
+	return implant
+
+/obj/item/device/electronic_assembly/proc/resolve_nano_host()
+	return src
+
+/obj/item/device/electronic_assembly/implant/resolve_nano_host()
+	return implant
 
 /obj/item/device/electronic_assembly/interact(mob/user)
-	//if(!CanInteract(user,src))
-	//	return
+	if(!CanInteract(user, src))
+		return
 
 	var/total_parts = 0
 	var/total_complexity = 0
@@ -71,13 +97,19 @@
 	set desc = "Rename your circuit, useful to stay organized."
 
 	var/mob/M = usr
-	//if(!CanInteract(M,src))
-	//	return
+	if(!CanInteract(M, src))
+		return
 
 	var/input = sanitize_text(input("What do you want to name this?", "Rename", src.name) as null|text, MAX_NAME_LEN)
 	if(src && input)
 		M << "<span class='notice'>The machine now has a label reading '[input]'.</span>"
 		name = input
+
+/obj/item/device/electronic_assembly/proc/can_move()
+	return FALSE
+
+/obj/item/device/electronic_assembly/drone/can_move()
+	return TRUE
 
 /obj/item/device/electronic_assembly/update_icon()
 	if(opened)
@@ -141,7 +173,7 @@
 		if(input.can_be_asked_input)
 			available_inputs.Add(input)
 	var/obj/item/integrated_circuit/input/choice = input(user, "What do you want to interact with?", "Interaction") as null|anything in available_inputs
-	if(choice)
+	if(choice && CanInteract(user, src))
 		choice.ask_for_input(user)
 
 /obj/item/device/electronic_assembly/emp_act(severity)

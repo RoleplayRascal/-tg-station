@@ -33,7 +33,7 @@
 
 /obj/item/integrated_circuit/input/numberpad/ask_for_input(mob/user)
 	var/new_input = input(user, "Enter a number, please.","Number pad") as null|num
-	if(isnum(new_input))
+	if(isnum(new_input) && CanInteract(user, src))
 		var/datum/integrated_io/O = outputs[1]
 		O.data = new_input
 		O.push_data()
@@ -52,7 +52,7 @@
 
 /obj/item/integrated_circuit/input/textpad/ask_for_input(mob/user)
 	var/new_input = input(user, "Enter some words, please.","Number pad") as null|text
-	if(istext(new_input))
+	if(istext(new_input) && CanInteract(user, src))
 		var/datum/integrated_io/O = outputs[1]
 		O.data = new_input
 		O.push_data()
@@ -67,6 +67,7 @@
 	inputs = list("target ref")
 	outputs = list("total health %", "total missing health")
 	activators = list("scan")
+	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_BIO = 2)
 
 /obj/item/integrated_circuit/input/med_scanner/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -103,6 +104,7 @@
 		"clone damage"
 	)
 	activators = list("scan")
+	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3, TECH_BIO = 4)
 
 /obj/item/integrated_circuit/input/adv_med_scanner/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -150,6 +152,39 @@
 
 	O.push_data()
 
+/obj/item/integrated_circuit/input/adjacent_locator
+	name = "adjacent locator"
+	desc = "This is needed for certain devices that demand a reference for a target to act upon.  This type only locates something \
+	that is standing a meter away from the machine."
+	extended_desc = "The first pin requires a ref to a kind of object that you want the locator to acquire.  This means that it will \
+	give refs to nearby objects that are similar.  If more than one valid object is found nearby, it will choose one of them at \
+	random."
+	inputs = list("desired type ref")
+	outputs = list("located ref")
+	activators = list("locate")
+
+/obj/item/integrated_circuit/input/adjacent_locator/do_work()
+	var/datum/integrated_io/I = inputs[1]
+	var/datum/integrated_io/O = outputs[1]
+	O.data = null
+
+	if(!isweakref(I.data))
+		return
+	var/atom/A = I.data
+	if(!A)
+		return
+	var/desired_type = A.type
+
+	var/list/nearby_things = range(1, get_turf(src))
+	var/list/valid_things = list()
+	for(var/atom/thing in nearby_things)
+		if(thing.type != desired_type)
+			continue
+		valid_things.Add(thing)
+	if(valid_things.len)
+		O.data = weakref(pick(valid_things))
+	O.push_data()
+
 /obj/item/integrated_circuit/input/signaler
 	name = "integrated signaler"
 	desc = "Signals from a signaler can be received with this, allowing for remote control.  Additionally, it can send signals as well."
@@ -161,6 +196,7 @@
 	inputs = list("frequency","code")
 	outputs = list()
 	activators = list("send signal","on signal received")
+	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_MAGNETS = 2)
 
 	var/frequency = 1457
 	var/code = 30
@@ -184,7 +220,7 @@
 /obj/item/integrated_circuit/input/signaler/on_data_written()
 	var/datum/integrated_io/new_freq = inputs[1]
 	var/datum/integrated_io/new_code = inputs[2]
-	if(isnum(new_freq.data))
+	if(isnum(new_freq.data) && new_freq.data > 0)
 		set_frequency(new_freq.data)
 	if(isnum(new_code.data))
 		code = new_code.data
@@ -241,6 +277,7 @@
 	inputs = list("target EPv2 address", "data to send", "secondary text")
 	outputs = list("address received", "data received", "secondary text received")
 	activators = list("send data", "on data received")
+	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_MAGNETS = 2, TECH_BLUESPACE = 2)
 	var/datum/exonet_protocol/exonet = null
 
 /obj/item/integrated_circuit/input/EPv2/New()
@@ -274,8 +311,74 @@
 	data_received.write_data_to_pin(message)
 	text_received.write_data_to_pin(text)
 
+//This circuit gives information on where the machine is.
+/obj/item/integrated_circuit/input/gps
+	name = "global positioning system"
+	desc = "This allows you to easily know the position of a machine containing this device."
+	icon_state = "gps"
+	complexity = 4
+	inputs = list()
+	outputs = list("X (abs)", "Y (abs)")
+	activators = list("get coordinates")
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+
+/obj/item/integrated_circuit/input/gps/do_work()
+	var/turf/T = get_turf(src)
+	var/datum/integrated_io/result_x = outputs[1]
+	var/datum/integrated_io/result_y = outputs[2]
+
+	result_x.data = null
+	result_y.data = null
+	if(!T)
+		return
+
+	result_x.data = T.x
+	result_y.data = T.y
+
+	for(var/datum/integrated_io/output/O in outputs)
+		O.push_data()
+
+
+/obj/item/integrated_circuit/input/microphone
+	name = "microphone"
+	desc = "Useful for spying on people or for voice activated machines."
+	icon_state = "recorder"
+	flags = HEAR
+	complexity = 8
+	inputs = list()
+	outputs = list("speaker \<String\>", "message \<String\>")
+	activators = list("on message received")
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+
+/*
+/obj/item/integrated_circuit/input/microphone/New()
+	..()
+	listening_objects |= src
+
+/obj/item/integrated_circuit/input/microphone/Destroy()
+	listening_objects -= src
+	..()
+*/
+
+/obj/item/integrated_circuit/input/microphone/Hear(message, atom/movable/speaker, message_langs, raw_message, radio_freq, list/spans)
+	var/datum/integrated_io/V = outputs[1]
+	var/datum/integrated_io/O = outputs[2]
+	var/datum/integrated_io/A = activators[1]
+	if(speaker = src)
+		return
+	//msg = lang_treat(msg, M, message_langs, raw_message, spans)
+	V.data = speaker.GetVoice()
+	O.data = raw_message
+	A.push_data()
+
+
+
+
+/obj/item/integrated_circuit/output
+	category_text = "Output"
+
 /obj/item/integrated_circuit/output/screen
-	name = "screen"
+	name = "small screen"
 	desc = "This small screen can display a single piece of data, when the machine is examined closely."
 	icon_state = "screen"
 	inputs = list("displayed data")
@@ -291,6 +394,28 @@
 			stuff_to_display = "[d]"
 	else
 		stuff_to_display = I.data
+
+/obj/item/integrated_circuit/output/screen/medium
+	name = "screen"
+	desc = "This screen allows for people holding the device to see a piece of data."
+	icon_state = "screen_medium"
+
+/obj/item/integrated_circuit/output/screen/medium/do_work()
+	..()
+	var/list/nearby_things = range(0, get_turf(src))
+	for(var/mob/M in nearby_things)
+		var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+		visible_message("<span class='notice'>\icon[O] [stuff_to_display]</span>")
+
+/obj/item/integrated_circuit/output/screen/large
+	name = "large screen"
+	desc = "This screen allows for people able to see the device to see a piece of data."
+	icon_state = "screen_large"
+
+/obj/item/integrated_circuit/output/screen/large/do_work()
+	..()
+	var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+	O.visible_message("<span class='notice'>\icon[O] [stuff_to_display]</span>")
 
 /obj/item/integrated_circuit/output/light
 	name = "light"
@@ -360,7 +485,23 @@
 	outputs = list()
 	activators = list("play sound")
 	var/list/sounds = list()
-	category = /obj/item/integrated_circuit/output/sound
+
+/obj/item/integrated_circuit/output/text_to_speech
+	name = "text-to-speech circuit"
+	desc = "A miniature speaker is attached to this component."
+	extended_desc = "This unit is more advanced than the plain speaker circuit, able to transpose any valid text to speech."
+	icon_state = "speaker"
+	complexity = 12
+	cooldown_per_use = 4 SECONDS
+	inputs = list("text")
+	outputs = list()
+	activators = list("to speech")
+
+/obj/item/integrated_circuit/output/text_to_speech/do_work()
+	var/datum/integrated_io/text = inputs[1]
+	if(istext(text.data))
+		var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+		audible_message("\icon[O] \The [O.name] states, \"[text.data]\"")
 
 /obj/item/integrated_circuit/output/sound/New()
 	..()
@@ -378,7 +519,6 @@
 	if(istext(ID.data) && isnum(vol.data) && isnum(frequency.data))
 		var/selected_sound = sounds[ID.data]
 		if(!selected_sound)
-			world << "No sound"
 			return
 		vol.data = Clamp(vol.data, 0, 100)
 		frequency.data = round(Clamp(frequency.data, 0, 1))
@@ -413,4 +553,3 @@
 		"radio"			= 'sound/voice/bradio.ogg',
 		"secure day"	= 'sound/voice/bsecureday.ogg',
 		)
-

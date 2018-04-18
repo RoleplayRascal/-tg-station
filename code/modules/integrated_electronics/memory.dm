@@ -6,7 +6,6 @@
 	inputs = list("input pin 1")
 	outputs = list("output pin 1")
 	activators = list("set")
-	category = /obj/item/integrated_circuit/memory
 
 /obj/item/integrated_circuit/memory/examine(mob/user)
 	..()
@@ -59,6 +58,7 @@
 		"output pin 6",
 		"output pin 7",
 		"output pin 8")
+	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3)
 
 /obj/item/integrated_circuit/memory/huge
 	name = "large memory stick"
@@ -100,6 +100,7 @@
 		"output pin 14",
 		"output pin 15",
 		"output pin 16")
+	origin_tech = list(TECH_ENGINEERING = 4, TECH_DATA = 4)
 
 /obj/item/integrated_circuit/memory/constant
 	name = "constant chip"
