@@ -1,5 +1,6 @@
 /obj/item/integrated_circuit/input
 	var/can_be_asked_input = 0
+	power_draw_per_use = 5
 
 /obj/item/integrated_circuit/input/proc/ask_for_input(mob/user)
 	return
@@ -19,7 +20,22 @@
 	if(A.linked.len)
 		for(var/datum/integrated_io/activate/target in A.linked)
 			target.holder.check_then_do_work()
-	user << "<span class='notice'>You press the button labeled '[src.name]'.</span>"
+	to_chat(user, "<span class='notice'>You press the button labeled '[src.name]'.</span>")
+
+/obj/item/integrated_circuit/input/toggle_button
+	name = "toggle button"
+	desc = "It toggles on, off, on, off..."
+	icon_state = "toggle_button"
+	complexity = 1
+	inputs = list()
+	outputs = list("on" = 0)
+	activators = list("on toggle")
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+
+/obj/item/integrated_circuit/input/toggle_button/ask_for_input(mob/user) // Ditto.
+	set_pin_data(IC_OUTPUT, 1, !get_pin_data(IC_OUTPUT, 1))
+	activate_pin(1)
+	to_chat(user, "<span class='notice'>You toggle the button labeled '[src.name]' [get_pin_data(IC_OUTPUT, 1) ? "on" : "off"].</span>")
 
 /obj/item/integrated_circuit/input/numberpad
 	name = "number pad"
@@ -30,6 +46,7 @@
 	inputs = list()
 	outputs = list("number entered")
 	activators = list("on entered")
+	power_draw_per_use = 4
 
 /obj/item/integrated_circuit/input/numberpad/ask_for_input(mob/user)
 	var/new_input = input(user, "Enter a number, please.","Number pad") as null|num
@@ -49,6 +66,7 @@
 	inputs = list()
 	outputs = list("string entered")
 	activators = list("on entered")
+	power_draw_per_use = 4
 
 /obj/item/integrated_circuit/input/textpad/ask_for_input(mob/user)
 	var/new_input = input(user, "Enter some words, please.","Number pad") as null|text
@@ -68,6 +86,7 @@
 	outputs = list("total health %", "total missing health")
 	activators = list("scan")
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_BIO = 2)
+	power_draw_per_use = 40
 
 /obj/item/integrated_circuit/input/med_scanner/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -105,6 +124,7 @@
 	)
 	activators = list("scan")
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3, TECH_BIO = 4)
+	power_draw_per_use = 80
 
 /obj/item/integrated_circuit/input/adv_med_scanner/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -141,6 +161,7 @@
 	inputs = list()
 	outputs = list("located ref")
 	activators = list("locate")
+	power_draw_per_use = 20
 
 /obj/item/integrated_circuit/input/local_locator/do_work()
 	var/datum/integrated_io/O = outputs[1]
@@ -162,6 +183,7 @@
 	inputs = list("desired type ref")
 	outputs = list("located ref")
 	activators = list("locate")
+	power_draw_per_use = 30
 
 /obj/item/integrated_circuit/input/adjacent_locator/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -197,6 +219,8 @@
 	outputs = list()
 	activators = list("send signal","on signal received")
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_MAGNETS = 2)
+	power_draw_idle = 5
+	power_draw_per_use = 40
 
 	var/frequency = 1457
 	var/code = 30
@@ -278,6 +302,7 @@
 	outputs = list("address received", "data received", "secondary text received")
 	activators = list("send data", "on data received")
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_MAGNETS = 2, TECH_BLUESPACE = 2)
+	power_draw_per_use = 50
 	var/datum/exonet_protocol/exonet = null
 
 /obj/item/integrated_circuit/input/EPv2/New()
@@ -311,6 +336,9 @@
 	data_received.write_data_to_pin(message)
 	text_received.write_data_to_pin(text)
 
+	for(var/datum/integrated_io/output/O in outputs)
+		O.push_data()
+
 //This circuit gives information on where the machine is.
 /obj/item/integrated_circuit/input/gps
 	name = "global positioning system"
@@ -321,6 +349,7 @@
 	outputs = list("X (abs)", "Y (abs)")
 	activators = list("get coordinates")
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+	power_draw_per_use = 30
 
 /obj/item/integrated_circuit/input/gps/do_work()
 	var/turf/T = get_turf(src)
@@ -349,7 +378,7 @@
 	outputs = list("speaker \<String\>", "message \<String\>")
 	activators = list("on message received")
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
-
+	power_draw_per_use = 15
 /*
 /obj/item/integrated_circuit/input/microphone/New()
 	..()
@@ -364,14 +393,37 @@
 	var/datum/integrated_io/V = outputs[1]
 	var/datum/integrated_io/O = outputs[2]
 	var/datum/integrated_io/A = activators[1]
-	if(speaker = src)
+	if(speaker == src)
 		return
 	//msg = lang_treat(msg, M, message_langs, raw_message, spans)
 	V.data = speaker.GetVoice()
 	O.data = raw_message
 	A.push_data()
 
+	for(var/datum/integrated_io/output/out in outputs)
+		out.push_data()
 
+	A.push_data()
+
+
+
+/obj/item/integrated_circuit/input/sensor
+	name = "sensor"
+	desc = "Scans and obtains a reference for any objects or persons near you.  All you need to do is shove the machine in their face."
+	icon_state = "recorder"
+	complexity = 12
+	inputs = list()
+	outputs = list("scanned ref \<Ref\>")
+	activators = list("on scanned")
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+	power_draw_per_use = 120
+
+/obj/item/integrated_circuit/input/sensor/do_work()
+	// Because this gets called by attack(), all this needs to do is pulse the activator.
+	for(var/datum/integrated_io/output/O in outputs)
+		O.push_data()
+	var/datum/integrated_io/activate/A = activators[1]
+	A.push_data()
 
 
 /obj/item/integrated_circuit/output
@@ -384,7 +436,17 @@
 	inputs = list("displayed data")
 	outputs = list()
 	activators = list("load data")
+	power_draw_per_use = 10
+	autopulse = 1
 	var/stuff_to_display = null
+
+
+/obj/item/integrated_circuit/output/screen/disconnect_all()
+	..()
+	stuff_to_display = null
+
+/obj/item/integrated_circuit/output/screen/any_examine(mob/user)
+	to_chat(user, "There is a little screen labeled '[name]', which displays [stuff_to_display ? "'[stuff_to_display]'" : "nothing"].")
 
 /obj/item/integrated_circuit/output/screen/do_work()
 	var/datum/integrated_io/I = inputs[1]
@@ -399,28 +461,30 @@
 	name = "screen"
 	desc = "This screen allows for people holding the device to see a piece of data."
 	icon_state = "screen_medium"
+	power_draw_per_use = 20
 
 /obj/item/integrated_circuit/output/screen/medium/do_work()
 	..()
 	var/list/nearby_things = range(0, get_turf(src))
 	for(var/mob/M in nearby_things)
-		var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+		var/obj/O = assembly ? assembly : src
 		visible_message("<span class='notice'>\icon[O] [stuff_to_display]</span>")
 
 /obj/item/integrated_circuit/output/screen/large
 	name = "large screen"
 	desc = "This screen allows for people able to see the device to see a piece of data."
 	icon_state = "screen_large"
+	power_draw_per_use = 40
 
 /obj/item/integrated_circuit/output/screen/large/do_work()
 	..()
-	var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+	var/obj/O = assembly ? loc : assembly
 	O.visible_message("<span class='notice'>\icon[O] [stuff_to_display]</span>")
 
 /obj/item/integrated_circuit/output/light
 	name = "light"
 	desc = "This light can turn on and off on command."
-	icon_state = "light_adv"
+	icon_state = "light"
 	complexity = 4
 	inputs = list()
 	outputs = list()
@@ -428,6 +492,10 @@
 	var/light_toggled = 0
 	var/light_brightness = 3
 	var/light_rgb = "#FFFFFF"
+	power_draw_idle = 0 // Adjusted based on brightness.
+
+/obj/item/integrated_circuit/output/light/Destroy()
+	..()
 
 /obj/item/integrated_circuit/output/light/do_work()
 	light_toggled = !light_toggled
@@ -438,6 +506,7 @@
 		set_light(l_range = light_brightness, l_power = light_brightness, l_color = light_rgb)
 	else
 		set_light(0)
+	power_draw_idle = light_toggled ? light_brightness * 2 : 0
 
 /obj/item/integrated_circuit/output/light/advanced/update_lighting()
 	var/datum/integrated_io/R = inputs[1]
@@ -455,6 +524,10 @@
 
 	..()
 
+/obj/item/integrated_circuit/output/light/power_fail() // Turns off the flashlight if there's no power left.
+	light_toggled = FALSE
+	update_lighting()
+
 /obj/item/integrated_circuit/output/light/advanced
 	name = "advanced light"
 	desc = "This light can turn on and off on command, in any color, and in various brightness levels."
@@ -467,6 +540,7 @@
 		"Brightness"
 	)
 	outputs = list()
+	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3)
 
 /obj/item/integrated_circuit/output/light/advanced/on_data_written()
 	update_lighting()
@@ -484,6 +558,7 @@
 	)
 	outputs = list()
 	activators = list("play sound")
+	power_draw_per_use = 20
 	var/list/sounds = list()
 
 /obj/item/integrated_circuit/output/text_to_speech
@@ -500,7 +575,7 @@
 /obj/item/integrated_circuit/output/text_to_speech/do_work()
 	var/datum/integrated_io/text = inputs[1]
 	if(istext(text.data))
-		var/obj/O = istype(loc, /obj/item/device/electronic_assembly) ? loc : src
+		var/obj/O = assembly ? loc : assembly
 		audible_message("\icon[O] \The [O.name] states, \"[text.data]\"")
 
 /obj/item/integrated_circuit/output/sound/New()
@@ -553,3 +628,119 @@
 		"radio"			= 'sound/voice/bradio.ogg',
 		"secure day"	= 'sound/voice/bsecureday.ogg',
 		)
+	spawn_flags = IC_SPAWN_RESEARCH
+	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_ILLEGAL = 1)
+
+/obj/item/integrated_circuit/output/video_camera
+	name = "video camera circuit"
+	desc = "This small camera allows a remote viewer to see what it sees."
+	extended_desc = "The camera is linked to the Research camera network."
+	icon_state = "video_camera"
+	w_class = 2
+	complexity = 10
+	inputs = list("camera name" = "video camera circuit", "camera active" = 0)
+	outputs = list()
+	activators = list()
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+	power_draw_idle = 5 // Raises to 80 when on.
+	var/obj/machinery/camera/camera
+
+/obj/item/integrated_circuit/output/video_camera/New()
+	..()
+	camera = new(src)
+	on_data_written()
+
+/obj/item/integrated_circuit/output/video_camera/Destroy()
+	qdel(camera)
+	..()
+
+/obj/item/integrated_circuit/output/video_camera/proc/set_camera_status(var/status)
+	if(camera)
+		camera.status = status
+		power_draw_idle = camera.status ? 80 : 5
+		if(camera.status) // Ensure that there's actually power.
+			if(!draw_idle_power())
+				power_fail()
+
+/obj/item/integrated_circuit/output/video_camera/on_data_written()
+	if(camera)
+		var/datum/integrated_io/cam_name = inputs[1]
+		var/datum/integrated_io/cam_active = inputs[2]
+		if(istext(cam_name.data))
+			camera.c_tag = cam_name.data
+		if(isnum(cam_active.data))
+			set_camera_status(cam_active.data)
+
+/obj/item/integrated_circuit/output/video_camera/power_fail()
+	if(camera)
+		set_camera_status(0)
+		var/datum/integrated_io/cam_active = inputs[2]
+		cam_active.data = FALSE
+
+/obj/item/integrated_circuit/output/led
+	name = "light-emitting diode"
+	desc = "This a LED that is lit whenever there is TRUE-equivalent data on its input."
+	extended_desc = "TRUE-equivalent values are: Non-empty strings, non-zero numbers, and valid refs."
+	complexity = 0.1
+	icon_state = "led"
+	inputs = list("lit")
+	outputs = list()
+	activators = list()
+	power_draw_idle = 0 // Raises to 1 when lit.
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+	var/led_color
+
+/obj/item/integrated_circuit/output/led/on_data_written()
+	power_draw_idle = get_pin_data(IC_INPUT, 1) ? 1 : 0
+
+/obj/item/integrated_circuit/output/led/power_fail()
+	set_pin_data(IC_INPUT, 1, FALSE)
+
+/obj/item/integrated_circuit/output/led/any_examine(mob/user)
+	var/text_output = list()
+	var/initial_name = initial(name)
+
+	// Doing all this work just to have a color-blind friendly output.
+	text_output += "There is "
+	if(name == initial_name)
+		text_output += "\an [name]"
+	else
+		text_output += "\an ["\improper[initial_name]"] labeled '[name]'"
+	text_output += " which is currently [get_pin_data(IC_INPUT, 1) ? "lit <font color=[led_color]>¤</font>" : "unlit."]"
+	to_chat(user,jointext(text_output,null))
+
+/obj/item/integrated_circuit/output/led/red
+	name = "red LED"
+	led_color = COLOR_RED
+
+/obj/item/integrated_circuit/output/led/orange
+	name = "orange LED"
+	led_color = COLOR_ORANGE
+
+/obj/item/integrated_circuit/output/led/yellow
+	name = "yellow LED"
+	led_color = COLOR_YELLOW
+
+/obj/item/integrated_circuit/output/led/green
+	name = "green LED"
+	led_color = COLOR_GREEN
+
+/obj/item/integrated_circuit/output/led/blue
+	name = "blue LED"
+	led_color = COLOR_BLUE
+
+/obj/item/integrated_circuit/output/led/purple
+	name = "purple LED"
+	led_color = COLOR_PURPLE
+
+/obj/item/integrated_circuit/output/led/cyan
+	name = "cyan LED"
+	led_color = COLOR_CYAN
+
+/obj/item/integrated_circuit/output/led/white
+	name = "white LED"
+	led_color = COLOR_WHITE
+
+/obj/item/integrated_circuit/output/led/pink
+	name = "pink LED"
+	led_color = COLOR_PINK
