@@ -42,3 +42,6 @@
 		IC.attackby(O, user)
 	else
 		..()
+
+/obj/item/weapon/implant/integrated_circuit/attack_self(mob/user)
+	IC.attack_self(user)

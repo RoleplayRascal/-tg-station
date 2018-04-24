@@ -7,14 +7,16 @@
 	normal limitations to firearms, such as ammunition requirements and firing delays, still hold true if fired by the mechanism."
 	complexity = 20
 	inputs = list(
-		"target X rel",
-		"target Y rel"
+		"\<NUM\> target X rel",
+		"\<NUM\> target Y rel"
 		)
 	outputs = list()
 	activators = list(
-		"fire"
+		"\<PULSE IN\> fire"
 	)
 	var/obj/item/weapon/gun/installed_gun = null
+	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3, TECH_COMBAT = 4)
+	power_draw_per_use = 50 // The targeting mechanism uses this.  The actual gun uses its own cell for firing if it's an energy weapon.
 
 /obj/item/integrated_circuit/manipulation/weapon_firing/Destroy()
 	qdel(installed_gun)
@@ -106,6 +108,7 @@
 	inputs = list("dir num")
 	outputs = list()
 	activators = list("step towards dir")
+	power_draw_per_use = 100
 
 /obj/item/integrated_circuit/manipulation/locomotion/do_work()
 	..()

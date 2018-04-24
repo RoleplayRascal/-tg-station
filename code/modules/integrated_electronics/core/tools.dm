@@ -11,6 +11,7 @@
 	used for power or data transmission."
 	icon = 'icons/obj/electronic_assemblies.dmi'
 	icon_state = "wirer-wire"
+	item_state = "wirer"
 	flags = CONDUCT
 	w_class = 2
 	var/datum/integrated_io/selected_io = null
@@ -20,6 +21,9 @@
 	icon_state = "wirer-[mode]"
 
 /obj/item/device/integrated_electronics/wirer/proc/wire(var/datum/integrated_io/io, mob/user)
+	if(!io.holder.assembly)
+		to_chat(user, "<span class='warning'>\The [io.holder] needs to be secured inside an assembly first.</span>")
+		return
 	if(mode == WIRE)
 		selected_io = io
 		user << "<span class='notice'>You attach a data wire to \the [selected_io.holder]'s [selected_io.name] data channel.</span>"
@@ -110,8 +114,8 @@
 
 /obj/item/device/integrated_electronics/debugger/attack_self(mob/user)
 	var/type_to_use = input("Please choose a type to use.","[src] type setting") as null|anything in list("string","number","ref", "null")
-	//if(!CanInteract(user,src))
-	//	return
+	if(!CanInteract(user,src))
+		return
 
 	var/new_data = null
 	switch(type_to_use)
@@ -153,8 +157,8 @@
 			data_to_show = A.name
 		user << "<span class='notice'>You write [data_to_write ? data_to_show : "NULL"]' to the '[io]' pin of \the [io.holder].</span>"
 	else if(io.io_type == PULSE_CHANNEL)
-		io.holder.check_then_do_work()
-		user << "<span class='notice'>You pulse \the [io.holder]'s [io].</span>"
+		io.holder.check_then_do_work(ignore_power = TRUE)
+		to_chat(user, "<span class='notice'>You pulse \the [io.holder]'s [io].</span>")
 
 	io.holder.interact(user) // This is to update the UI.
 
@@ -191,6 +195,7 @@
 		new /obj/item/weapon/storage/bag/circuits/mini/reagents(src)
 		new /obj/item/weapon/storage/bag/circuits/mini/transfer(src)
 		new /obj/item/weapon/storage/bag/circuits/mini/converter(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/power(src)
 
 		new /obj/item/device/electronic_assembly(src)
 		new /obj/item/device/integrated_electronics/wirer(src)
@@ -202,11 +207,24 @@
 /obj/item/weapon/storage/bag/circuits/all/New()
 	..()
 	spawn(2 SECONDS) // So the list has time to initialize.
-		for(var/obj/item/integrated_circuit/IC in all_integrated_circuits)
-			for(var/i = 1 to 10)
-				new IC.type(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/arithmetic/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/trig/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/input/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/output/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/memory/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/logic/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/smart/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/manipulation/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/time/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/reagents/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/transfer/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/converter/all(src)
+		new /obj/item/weapon/storage/bag/circuits/mini/power/all(src)
 
 		new /obj/item/device/electronic_assembly(src)
+		new /obj/item/device/electronic_assembly/medium(src)
+		new /obj/item/device/electronic_assembly/large(src)
+		new /obj/item/device/electronic_assembly/drone(src)
 		new /obj/item/device/integrated_electronics/wirer(src)
 		new /obj/item/device/integrated_electronics/debugger(src)
 		new /obj/item/weapon/crowbar(src)
