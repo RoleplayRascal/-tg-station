@@ -3,9 +3,20 @@
 	desc = "This tiny chip can store one piece of data."
 	icon_state = "memory"
 	complexity = 1
-	inputs = list("input pin 1")
-	outputs = list("output pin 1")
-	activators = list("set")
+	inputs = list()
+	outputs = list()
+	activators = list("set" = IC_PINTYPE_PULSE_IN, "on set" = IC_PINTYPE_PULSE_OUT)
+	category_text = "Memory"
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
+	power_draw_per_use = 1
+	var/number_of_pins = 1
+
+/obj/item/integrated_circuit/memory/New()
+	for(var/i = 1 to number_of_pins)
+		inputs["input [i]"] = IC_PINTYPE_ANY // This is just a string since pins don't get built until ..() is called.
+		outputs["output [i]"] = IC_PINTYPE_ANY
+	complexity = number_of_pins
+	..()
 
 /obj/item/integrated_circuit/memory/examine(mob/user)
 	..()
@@ -26,81 +37,33 @@
 		var/datum/integrated_io/I = inputs[i]
 		var/datum/integrated_io/O = outputs[i]
 		O.data = I.data
+		O.push_data()
+	activate_pin(2)
 
 /obj/item/integrated_circuit/memory/medium
 	name = "memory circuit"
 	desc = "This circuit can store four pieces of data."
 	icon_state = "memory4"
-	complexity = 4
-	inputs = list("input pin 1","input pin 2","input pin 3","input pin 4")
-	outputs = list("output pin 1","output pin 2","output pin 3","output pin 4")
+	power_draw_per_use = 2
+	number_of_pins = 4
 
 /obj/item/integrated_circuit/memory/large
 	name = "large memory circuit"
 	desc = "This big circuit can hold eight pieces of data."
 	icon_state = "memory8"
-	complexity = 8
-	inputs = list(
-		"input pin 1",
-		"input pin 2",
-		"input pin 3",
-		"input pin 4",
-		"input pin 5",
-		"input pin 6",
-		"input pin 7",
-		"input pin 8")
-	outputs = list(
-		"output pin 1",
-		"output pin 2",
-		"output pin 3",
-		"output pin 4",
-		"output pin 5",
-		"output pin 6",
-		"output pin 7",
-		"output pin 8")
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3)
+	power_draw_per_use = 4
+	number_of_pins = 8
 
 /obj/item/integrated_circuit/memory/huge
 	name = "large memory stick"
 	desc = "This stick of memory can hold up up to sixteen pieces of data."
 	icon_state = "memory16"
-	complexity = 16
-	inputs = list(
-		"input pin 1",
-		"input pin 2",
-		"input pin 3",
-		"input pin 4",
-		"input pin 5",
-		"input pin 6",
-		"input pin 7",
-		"input pin 8",
-		"input pin 9",
-		"input pin 10",
-		"input pin 11",
-		"input pin 12",
-		"input pin 13",
-		"input pin 14",
-		"input pin 15",
-		"input pin 16"
-	)
-	outputs = list(
-		"output pin 1",
-		"output pin 2",
-		"output pin 3",
-		"output pin 4",
-		"output pin 5",
-		"output pin 6",
-		"output pin 7",
-		"output pin 8",
-		"output pin 9",
-		"output pin 10",
-		"output pin 11",
-		"output pin 12",
-		"output pin 13",
-		"output pin 14",
-		"output pin 15",
-		"output pin 16")
+	w_class = 3
+	spawn_flags = IC_SPAWN_RESEARCH
 	origin_tech = list(TECH_ENGINEERING = 4, TECH_DATA = 4)
+	power_draw_per_use = 8
+	number_of_pins = 16
 
 /obj/item/integrated_circuit/memory/constant
 	name = "constant chip"
@@ -108,9 +71,10 @@
 	icon_state = "memory"
 	complexity = 1
 	inputs = list()
-	outputs = list("output pin")
-	activators = list("push data")
+	outputs = list("output pin" = IC_PINTYPE_ANY)
+	activators = list("push data" = IC_PINTYPE_PULSE_IN)
 	var/accepting_refs = 0
+	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 
 /obj/item/integrated_circuit/memory/constant/do_work()
 	var/datum/integrated_io/O = outputs[1]

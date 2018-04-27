@@ -457,7 +457,7 @@ other types of metals and chemistry for reagents).
 	name = "Custom wirer tool"
 	id = "wirer"
 	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
-	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 2500)
+	materials = list(MAT_METAL = 500, MAT_GLASS = 250)
 	build_type = PROTOLATHE
 	build_path = /obj/item/device/integrated_electronics/wirer
 	category = list("Electronics")
@@ -466,8 +466,10 @@ other types of metals and chemistry for reagents).
 	name = "Custom circuit debugger tool"
 	id = "debugger"
 	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
-	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 2500)
+	materials = list(MAT_METAL = 500, MAT_GLASS = 250)
+	build_type = PROTOLATHE
 	build_path = /obj/item/device/integrated_electronics/debugger
+	category = list("Electronics")
 
 /datum/design/circuit/integrated_circuit/AssembleDesignName()
 	..()
@@ -480,6 +482,26 @@ other types of metals and chemistry for reagents).
 /datum/design/circuit/integrated_circuit/arithmetic/AssembleDesignName()
 	..()
 	name = "Custom circuitry \[Arithmetic\] ([item_name])"
+
+/datum/design/item/custom_circuit_printer
+	name = "Portable integrated circuit printer"
+	desc = "A portable(ish) printer for modular machines."
+	id = "ic_printer"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2, TECH_DATA = 2)
+	materials = list(MAT_METAL = 10000)
+	build_type = PROTOLATHE
+	build_path = /obj/item/device/integrated_circuit_printer
+	category = list("Electronics")
+
+/datum/design/item/custom_circuit_printer_upgrade
+	name = "Integrated circuit printer upgrade - advanced designs"
+	desc = "Allows the integrated circuit printer to create advanced circuits"
+	id = "ic_printer_upgrade_adv"
+	req_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 4)
+	materials = list(MAT_METAL = 2000)
+	build_type = PROTOLATHE
+	build_path = /obj/item/weapon/disk/integrated_circuit/upgrade/advanced
+	category = list("Electronics")
 
 
 /datum/design/circuit/tcom/exonet_node

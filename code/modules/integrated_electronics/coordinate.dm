@@ -21,7 +21,7 @@
 	result_x.data = T.x
 	result_y.data = T.y
 
-	for(var/datum/integrated_io/output/O in outputs)
+	for(var/datum/integrated_io/O in outputs)
 		O.push_data()
 
 /obj/item/integrated_circuit/abs_to_rel_coords
@@ -46,5 +46,5 @@
 		result_x.data = x1.data - x2.data
 		result_y.data = y1.data - y2.data
 
-	for(var/datum/integrated_io/output/O in outputs)
+	for(var/datum/integrated_io/O in outputs)
 		O.push_data()
