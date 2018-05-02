@@ -1138,6 +1138,7 @@
 #include "code\modules\integrated_electronics\_defines.dm"
 #include "code\modules\integrated_electronics\coordinate.dm"
 #include "code\modules\integrated_electronics\core\assemblies.dm"
+#include "code\modules\integrated_electronics\core\detailer.dm"
 #include "code\modules\integrated_electronics\core\device.dm"
 #include "code\modules\integrated_electronics\core\helpers.dm"
 #include "code\modules\integrated_electronics\core\integrated_circuit.dm"

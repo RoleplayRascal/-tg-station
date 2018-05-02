@@ -5,13 +5,60 @@
 	name = "electronic assembly"
 	desc = "It's a case, for building electronics with."
 	w_class = 2
-	icon = 'icons/obj/electronic_assemblies.dmi'
+	icon = 'icons/obj/assemblies/electronic_setups.dmi'
 	icon_state = "setup_small"
 	var/show_messages = TRUE
 	var/max_components = IC_COMPONENTS_BASE
 	var/max_complexity = IC_COMPLEXITY_BASE
 	var/opened = 0
+	var/detail_color = COLOR_ASSEMBLY_BLACK
+	var/list/color_whitelist = list( //This is just for checking that hacked colors aren't in the save data.
+		COLOR_ASSEMBLY_BLACK,
+		COLOR_FLOORTILE_GRAY,
+		COLOR_ASSEMBLY_BGRAY,
+		COLOR_ASSEMBLY_WHITE,
+		COLOR_ASSEMBLY_RED,
+		COLOR_ASSEMBLY_ORANGE,
+		COLOR_ASSEMBLY_BEIGE,
+		COLOR_ASSEMBLY_BROWN,
+		COLOR_ASSEMBLY_GOLD,
+		COLOR_ASSEMBLY_YELLOW,
+		COLOR_ASSEMBLY_GURKHA,
+		COLOR_ASSEMBLY_LGREEN,
+		COLOR_ASSEMBLY_GREEN,
+		COLOR_ASSEMBLY_LBLUE,
+		COLOR_ASSEMBLY_BLUE,
+		COLOR_ASSEMBLY_PURPLE
+		)
 	var/obj/item/weapon/stock_parts/cell/battery = null // Internal cell which most circuits need to work.
+
+/obj/item/device/electronic_assembly/default //The /default electronic_assemblys are to allow the introduction of the new naming scheme without breaking old saves.
+  name = "type-a electronic assembly"
+
+/obj/item/device/electronic_assembly/calc
+	name = "type-b electronic assembly"
+	icon_state = "setup_small_calc"
+	desc = "It's a case, for building small electronics with. This one resembles a pocket calculator."
+
+/obj/item/device/electronic_assembly/clam
+	name = "type-c electronic assembly"
+	icon_state = "setup_small_clam"
+	desc = "It's a case, for building small electronics with. This one has a clamshell design."
+
+/obj/item/device/electronic_assembly/simple
+	name = "type-d electronic assembly"
+	icon_state = "setup_small_simple"
+	desc = "It's a case, for building small electronics with. This one has a simple design."
+
+/obj/item/device/electronic_assembly/hook
+	name = "type-e electronic assembly"
+	icon_state = "setup_small_hook"
+	desc = "It's a case, for building small electronics with. This one looks like it has a belt clip, but it's purely decorative."
+
+/obj/item/device/electronic_assembly/pda
+	name = "type-f electronic assembly"
+	icon_state = "setup_small_pda"
+	desc = "It's a case, for building small electronics with. This one resembles a PDA."
 
 /obj/item/device/electronic_assembly/medium
 	name = "electronic mechanism"
@@ -21,21 +68,132 @@
 	max_components = IC_COMPONENTS_BASE * 2
 	max_complexity = IC_COMPLEXITY_BASE * 2
 
+/obj/item/device/electronic_assembly/medium/default
+	name = "type-a electronic mechanism"
+
+/obj/item/device/electronic_assembly/medium/box
+	name = "type-b electronic mechanism"
+	icon_state = "setup_medium_box"
+	desc = "It's a case, for building medium-sized electronics with. This one has a boxy design."
+
+/obj/item/device/electronic_assembly/medium/clam
+	name = "type-c electronic mechanism"
+	icon_state = "setup_medium_clam"
+	desc = "It's a case, for building medium-sized electronics with. This one has a clamshell design."
+
+/obj/item/device/electronic_assembly/medium/medical
+	name = "type-d electronic mechanism"
+	icon_state = "setup_medium_med"
+	desc = "It's a case, for building medium-sized electronics with. This one resembles some type of medical apparatus."
+
+/obj/item/device/electronic_assembly/medium/gun
+	name = "type-e electronic mechanism"
+	icon_state = "setup_medium_gun"
+	desc = "It's a case, for building medium-sized electronics with. This one resembles a gun, or some type of tool, if you're feeling optimistic."
+
+/obj/item/device/electronic_assembly/medium/radio
+	name = "type-f electronic mechanism"
+	icon_state = "setup_medium_radio"
+	desc = "It's a case, for building medium-sized electronics with. This one resembles an old radio."
+
 /obj/item/device/electronic_assembly/large
 	name = "electronic machine"
 	icon_state = "setup_large"
 	desc = "It's a case, for building large electronics with."
-	w_class = 4
+	w_class = 5
 	max_components = IC_COMPONENTS_BASE * 4
 	max_complexity = IC_COMPLEXITY_BASE * 4
+
+/obj/item/device/electronic_assembly/large/default
+	name = "type-a electronic machine"
+
+/obj/item/device/electronic_assembly/large/scope
+	name = "type-b electronic machine"
+	icon_state = "setup_large_scope"
+	desc = "It's a case, for building large electronics with. This one resembles an oscilloscope."
+
+/obj/item/device/electronic_assembly/large/terminal
+	name = "type-c electronic machine"
+	icon_state = "setup_large_terminal"
+	desc = "It's a case, for building large electronics with. This one resembles a computer terminal."
+
+/obj/item/device/electronic_assembly/large/arm
+	name = "type-d electronic machine"
+	icon_state = "setup_large_arm"
+	desc = "It's a case, for building large electronics with. This one resembles a robotic arm."
+
+/obj/item/device/electronic_assembly/large/tall
+	name = "type-e electronic machine"
+	icon_state = "setup_large_tall"
+	desc = "It's a case, for building large electronics with. This one has a tall design."
+
+/obj/item/device/electronic_assembly/large/industrial
+	name = "type-f electronic machine"
+	icon_state = "setup_large_industrial"
+	desc = "It's a case, for building large electronics with. This one resembles some kind of industrial machinery."
 
 /obj/item/device/electronic_assembly/drone
 	name = "electronic drone"
 	icon_state = "setup_drone"
 	desc = "It's a case, for building mobile electronics with."
+	w_class = 4
+	max_components = IC_COMPONENTS_BASE * 3
+	max_complexity = IC_COMPLEXITY_BASE * 3
+
+/obj/item/device/electronic_assembly/drone/can_move()
+	return TRUE
+
+/obj/item/device/electronic_assembly/drone/default
+	name = "type-a electronic drone"
+
+/obj/item/device/electronic_assembly/drone/arms
+	name = "type-b electronic drone"
+	icon_state = "setup_drone_arms"
+	desc = "It's a case, for building mobile electronics with. This one is armed and dangerous."
+
+/obj/item/device/electronic_assembly/drone/secbot
+	name = "type-c electronic drone"
+	icon_state = "setup_drone_secbot"
+	desc = "It's a case, for building mobile electronics with. This one resembles a Securitron."
+
+/obj/item/device/electronic_assembly/drone/medbot
+	name = "type-d electronic drone"
+	icon_state = "setup_drone_medbot"
+	desc = "It's a case, for building mobile electronics with. This one resembles a Medibot."
+
+/obj/item/device/electronic_assembly/drone/genbot
+	name = "type-e electronic drone"
+	icon_state = "setup_drone_genbot"
+	desc = "It's a case, for building mobile electronics with. This one has a generic bot design."
+
+/obj/item/device/electronic_assembly/drone/android
+	name = "type-f electronic drone"
+	icon_state = "setup_drone_android"
+	desc = "It's a case, for building mobile electronics with. This one has a hominoid design."
+
+/obj/item/device/electronic_assembly/wallmount
+	name = "wall-mounted electronic assembly"
+	icon_state = "setup_wallmount_medium"
+	desc = "It's a case, for building medium-sized electronics with. It has a magnetized backing to allow it to stick to walls, but you'll still need to wrench the anchoring bolts in place to keep it on."
 	w_class = 3
-	max_components = IC_COMPONENTS_BASE * 1.5
-	max_complexity = IC_COMPLEXITY_BASE * 1.5
+	max_components = IC_COMPONENTS_BASE * 2
+	max_complexity = IC_COMPLEXITY_BASE * 2
+
+/obj/item/device/electronic_assembly/wallmount/heavy
+	name = "heavy wall-mounted electronic assembly"
+	icon_state = "setup_wallmount_large"
+	desc = "It's a case, for building large electronics with. It has a magnetized backing to allow it to stick to walls, but you'll still need to wrench the anchoring bolts in place to keep it on."
+	w_class = 5
+	max_components = IC_COMPONENTS_BASE * 4
+	max_complexity = IC_COMPLEXITY_BASE * 4
+
+/obj/item/device/electronic_assembly/wallmount/light
+	name = "light wall-mounted electronic assembly"
+	icon_state = "setup_wallmount_small"
+	desc = "It's a case, for building small electronics with. It has a magnetized backing to allow it to stick to walls, but you'll still need to wrench the anchoring bolts in place to keep it on."
+	w_class = 2
+	max_components = IC_COMPONENTS_BASE
+	max_complexity = IC_COMPLEXITY_BASE
 
 /obj/item/device/electronic_assembly/implant
 	name = "electronic implant"
@@ -75,6 +233,12 @@
 /obj/item/device/electronic_assembly/implant/update_icon()
 	..()
 	implant.icon_state = icon_state
+	overlays.Cut()
+	if(detail_color == COLOR_ASSEMBLY_BLACK) //Black colored overlay looks almost but not exactly like the base sprite, so just cut the overlay and avoid it looking kinda off.
+		return
+	var/image/detail_overlay = image('icons/obj/assemblies/electronic_setups.dmi', "[icon_state]-color")
+	detail_overlay.color = detail_color
+	overlays.Add(detail_overlay)
 
 
 /obj/item/device/electronic_assembly/implant/proc/nano_host()
@@ -184,6 +348,12 @@
 		icon_state = initial(icon_state) + "-open"
 	else
 		icon_state = initial(icon_state)
+	overlays.Cut()
+	if(detail_color == COLOR_ASSEMBLY_BLACK) //Black colored overlay looks almost but not exactly like the base sprite, so just cut the overlay and avoid it looking kinda off.
+		return
+	var/image/detail_overlay = image('icons/obj/assemblies/electronic_setups.dmi', "[icon_state]-color")
+	detail_overlay.color = detail_color
+	overlays.Add(detail_overlay)
 
 /obj/item/device/electronic_assembly/examine(mob/user)
 	. = ..(user, 1)
@@ -280,6 +450,10 @@
 		to_chat(user, "<span class='notice'>You slot \the [cell] inside \the [src]'s power supplier.</span>")
 		interact(user)
 		return TRUE
+	else if(istype(I, /obj/item/device/integrated_electronics/detailer))
+		var/obj/item/device/integrated_electronics/detailer/D = I
+		detail_color = D.detail_color
+		update_icon()
 	else
 		return ..()
 

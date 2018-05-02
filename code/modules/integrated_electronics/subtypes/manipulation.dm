@@ -122,7 +122,7 @@
 	var/turf/T = get_turf(src)
 	if(istype(loc, /obj/item/device/electronic_assembly))
 		var/obj/item/device/electronic_assembly/machine = loc
-		if(machine.anchored || machine.w_class >= 4)
+		if(!machine.can_move())
 			return
 		if(machine.loc == T) // Check if we're held by someone.  If the loc is the floor, we're not held.
 			var/datum/integrated_io/wanted_dir = inputs[1]
@@ -162,7 +162,7 @@
 	if(istype(G))
 		if(attached_grenade)
 			to_chat(user, "<span class='warning'>There is already a grenade attached!</span>")
-		else if(user.unEquip(G, force=1))
+		else if(user.unEquip(G, 1))
 			user.visible_message("<span class='warning'>\The [user] attaches \a [G] to \the [src]!</span>", "<span class='notice'>You attach \the [G] to \the [src].</span>")
 			attach_grenade(G)
 			G.forceMove(src)

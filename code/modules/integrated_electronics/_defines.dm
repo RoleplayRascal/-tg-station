@@ -45,6 +45,7 @@
 #define COLOR_WHITE            "#ffffff"
 #define COLOR_SILVER           "#c0c0c0"
 #define COLOR_GRAY             "#808080"
+#define COLOR_FLOORTILE_GRAY   "#8D8B8B"
 #define COLOR_BLACK            "#000000"
 #define COLOR_RED              "#ff0000"
 #define COLOR_RED_LIGHT        "#b00000"
@@ -76,6 +77,23 @@
 #define COLOR_PALE_PURPLE_GRAY "#bda2ba"
 #define COLOR_PURPLE_GRAY      "#a2819e"
 #define COLOR_SUN              "#ec8b2f"
+
+//Color defines used by the assembly detailer.
+#define COLOR_ASSEMBLY_BLACK   "#545454"
+#define COLOR_ASSEMBLY_BGRAY   "#9497AB"
+#define COLOR_ASSEMBLY_WHITE   "#E2E2E2"
+#define COLOR_ASSEMBLY_RED     "#CC4242"
+#define COLOR_ASSEMBLY_ORANGE  "#E39751"
+#define COLOR_ASSEMBLY_BEIGE   "#AF9366"
+#define COLOR_ASSEMBLY_BROWN   "#97670E"
+#define COLOR_ASSEMBLY_GOLD    "#AA9100"
+#define COLOR_ASSEMBLY_YELLOW  "#CECA2B"
+#define COLOR_ASSEMBLY_GURKHA  "#999875"
+#define COLOR_ASSEMBLY_LGREEN  "#789876"
+#define COLOR_ASSEMBLY_GREEN   "#44843C"
+#define COLOR_ASSEMBLY_LBLUE   "#5D99BE"
+#define COLOR_ASSEMBLY_BLUE    "#38559E"
+#define COLOR_ASSEMBLY_PURPLE  "#6F6192"
 
 var/global/list/alphabet_uppercase = list("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
 

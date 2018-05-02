@@ -122,7 +122,8 @@
 		if("string")
 			accepting_refs = 0
 			new_data = input("Now type in a string.","[src] string writing") as null|text
-			if(istext(new_data))
+			new_data = sanitize_text(new_data, MAX_MESSAGE_LEN, 0, 0)
+			if(istext(new_data) && CanInteract(user,src))
 				data_to_write = new_data
 				user << "<span class='notice'>You set \the [src]'s memory to \"[new_data]\".</span>"
 		if("number")

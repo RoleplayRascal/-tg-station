@@ -52,10 +52,33 @@
 		// Now for non-circuit things.
 		var/list/assembly_list = list()
 		assembly_list.Add(
-			new /obj/item/device/electronic_assembly(null),
-			new /obj/item/device/electronic_assembly/medium(null),
-			new /obj/item/device/electronic_assembly/large(null),
-			new /obj/item/device/electronic_assembly/drone(null),
+			new /obj/item/device/electronic_assembly/default(null),
+			new /obj/item/device/electronic_assembly/calc(null),
+			new /obj/item/device/electronic_assembly/clam(null),
+			new /obj/item/device/electronic_assembly/simple(null),
+			new /obj/item/device/electronic_assembly/hook(null),
+			new /obj/item/device/electronic_assembly/pda(null),
+			new /obj/item/device/electronic_assembly/medium/default(null),
+			new /obj/item/device/electronic_assembly/medium/box(null),
+			new /obj/item/device/electronic_assembly/medium/clam(null),
+			new /obj/item/device/electronic_assembly/medium/medical(null),
+			new /obj/item/device/electronic_assembly/medium/gun(null),
+			new /obj/item/device/electronic_assembly/medium/radio(null),
+			new /obj/item/device/electronic_assembly/large/default(null),
+			new /obj/item/device/electronic_assembly/large/scope(null),
+			new /obj/item/device/electronic_assembly/large/terminal(null),
+			new /obj/item/device/electronic_assembly/large/arm(null),
+			new /obj/item/device/electronic_assembly/large/tall(null),
+			new /obj/item/device/electronic_assembly/large/industrial(null),
+			new /obj/item/device/electronic_assembly/drone/default(null),
+			new /obj/item/device/electronic_assembly/drone/arms(null),
+			new /obj/item/device/electronic_assembly/drone/secbot(null),
+			new /obj/item/device/electronic_assembly/drone/medbot(null),
+			new /obj/item/device/electronic_assembly/drone/genbot(null),
+			new /obj/item/device/electronic_assembly/drone/android(null),
+			new /obj/item/device/electronic_assembly/wallmount/light(null),
+			new /obj/item/device/electronic_assembly/wallmount(null),
+			new /obj/item/device/electronic_assembly/wallmount/heavy(null),
 			new /obj/item/weapon/implant/integrated_circuit(null),
 			new /obj/item/device/assembly/electronic_assembly(null)
 		)
@@ -64,7 +87,8 @@
 		var/list/tools_list = list()
 		tools_list.Add(
 			new /obj/item/device/integrated_electronics/wirer(null),
-			new /obj/item/device/integrated_electronics/debugger(null)
+			new /obj/item/device/integrated_electronics/debugger(null),
+			new /obj/item/device/integrated_electronics/detailer(null)
 		)
 		recipe_list["Tools"] = tools_list
 
@@ -77,7 +101,7 @@
 			to_chat(user, "<span class='warning'>\The [src] is too full to add more metal.</span>")
 			return
 		if(stack.amount >= num)
-			stack.amount -= num
+			stack.use(num)
 			to_chat(user, "<span class='notice'>You add [num] sheet\s to \the [src].</span>")
 			metal += num * metal_per_sheet
 			interact(user)
