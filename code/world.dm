@@ -31,7 +31,8 @@
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
 
 	make_datum_references_lists()	//initialises global lists for referencing frequently used datums (so that we only ever do it once)
-
+	initialize_integrated_circuits_list()
+	
 	load_configuration()
 	load_mode()
 	load_motd()

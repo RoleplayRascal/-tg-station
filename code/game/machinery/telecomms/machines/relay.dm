@@ -84,3 +84,17 @@
 	hide = 1
 	toggled = 0
 	autolinkers = list("r_relay")
+
+//This isn't a real telecomms board but I don't want to make a whole file to hold only one circuitboard.
+/obj/item/weapon/circuitboard/telecomms/exonet_node
+	name = "exonet node"
+	build_path = "/obj/machinery/exonet_node"
+	origin_tech = list(TECH_DATA = 5, TECH_ENGINEERING = 5, TECH_BLUESPACE = 4)
+	req_components = list(
+							"/obj/item/weapon/stock_parts/subspace/ansible" = 1,
+							"/obj/item/weapon/stock_parts/subspace/filter" = 1,
+							"/obj/item/weapon/stock_parts/manipulator" = 2,
+							"/obj/item/weapon/stock_parts/micro_laser" = 1,
+							"/obj/item/weapon/stock_parts/subspace/crystal" = 1,
+							"/obj/item/weapon/stock_parts/subspace/treatment" = 2,
+							"/obj/item/stack/cable_coil" = 2)

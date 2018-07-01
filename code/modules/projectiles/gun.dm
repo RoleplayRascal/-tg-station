@@ -230,6 +230,78 @@
 		user.update_inv_r_hand(0)
 	return fired
 
+// Similar to the above proc, but does not require a user, which is ideal for things like turrets.
+/obj/item/weapon/gun/proc/Fire_userless(atom/target)
+	if(!target)
+		return
+
+	if(world.time < semicd)
+		return
+
+	var/shoot_time = (burst_size - 1)* fire_delay
+	semicd = world.time + shoot_time
+
+	var/turf/targloc = get_turf(target) //cache this in case target gets deleted during shooting, e.g. if it was a securitron that got destroyed.
+	for(var/i in 1 to burst_size)
+		var/obj/projectile = process_chamber()
+		if(!projectile)
+			src.visible_message("<span class='danger'>*click*</span>")
+			//handle_click_empty()
+			break
+
+		if(istype(projectile, /obj/item/projectile))
+			var/obj/item/projectile/P = projectile
+
+			//Not supported, maybe later
+			/*
+			var/acc = burst_accuracy[min(i, burst_accuracy.len)]
+			var/disp = dispersion[min(i, dispersion.len)]
+
+			P.accuracy = accuracy + acc
+			P.dispersion = disp
+			*/
+			P.firer = src.name
+			P.suppressed = suppressed
+
+			P.original = target
+			P.fire()
+
+			if(suppressed)
+				playsound(src, fire_sound, 10, 1)
+			else
+				playsound(src, fire_sound, 50, 1)
+
+			//if(muzzle_flash) //Not supported, maybe later
+				//set_light(muzzle_flash)
+			update_icon()
+
+		//process_accuracy(projectile, user, target, acc, disp)
+
+	//	if(pointblank)
+	//		process_point_blank(projectile, user, target)
+
+	//	if(process_projectile(projectile, null, target, user.zone_sel.selecting, clickparams))
+	//		handle_post_fire(null, target, pointblank, reflex)
+
+	//	update_icon()
+
+		if(i < burst_size)
+			sleep(fire_delay)
+
+		if(!(target && target.loc))
+			target = targloc
+			//pointblank = 0
+
+	//log_and_message_admins("Fired [src].")
+
+	//admin_attack_log(usr, attacker_message="Fired [src]", admin_message="fired a gun ([src]) (MODE: [src.mode_name]) [reflex ? "by reflex" : "manually"].")
+
+	//update timing
+	semicd = world.time + fire_delay
+
+	//if(muzzle_flash)
+		//set_light(0)
+
 
 /obj/item/weapon/gun/attack(mob/M as mob, mob/user)
 	if (M == user && user.zone_sel.selecting == "mouth" && !mouthshoot && ishuman(user)) //Handle gun suicide

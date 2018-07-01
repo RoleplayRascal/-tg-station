@@ -32,6 +32,7 @@ other types of metals and chemistry for reagents).
 /datum/design						//Datum for object designs, used in construction
 	var/name = "Name"					//Name of the created object.
 	var/desc = "Desc"					//Description of the created object.
+	var/item_name = null			//An item name before it is modified by various name-modifying procs
 	var/id = "id"						//ID of the created object for easy refernece. Alphanumeric, lower-case, no symbols
 	var/list/req_tech = list()			//IDs of that techs the object originated from and the minimum level requirements.			//Reliability modifier of the device at it's starting point.
 	var/reliability = 100				//Reliability of the device.
@@ -41,6 +42,33 @@ other types of metals and chemistry for reagents).
 	var/build_path = ""					//The file path of the object that gets created
 	var/list/category = null 			//Primarily used for Mech Fabricators, but can be used for anything
 
+/datum/design/New()
+	..()
+	item_name = name
+	AssembleDesignInfo()
+
+//These procs are used in subtypes for assigning names and descriptions dynamically
+/datum/design/proc/AssembleDesignInfo()
+	AssembleDesignName()
+	AssembleDesignDesc()
+	return
+
+/datum/design/proc/AssembleDesignName()
+	if(!name && build_path)					//Get name from build path if posible
+		var/atom/movable/A = build_path
+		name = initial(A.name)
+		item_name = name
+	return
+
+/datum/design/proc/AssembleDesignDesc()
+	if(!desc)								//Try to make up a nice description if we don't have one
+		desc = "Allows for the construction of \a [item_name]."
+	return
+
+//Returns a new instance of the item for this design
+//This is to allow additional initialization to be performed, including possibly additional contructor arguments.
+/datum/design/proc/Fabricate(var/newloc, var/fabricator)
+	return new build_path(newloc)
 
 //A proc to calculate the reliability of a design based on tech levels and innate modifiers.
 //Input: A list of /datum/tech; Output: The new reliabilty.
@@ -419,3 +447,65 @@ other types of metals and chemistry for reagents).
 	materials = list(MAT_METAL = 1000, MAT_GLASS = 500, MAT_PLASMA = 1500, MAT_URANIUM = 200)
 	build_path = /obj/item/weapon/weldingtool/experimental
 	category = list("Equipment")  //fuck you tg
+
+
+/////////////////////////////////////////
+//////Integrated Circuits////////////////
+/////////////////////////////////////////
+
+/datum/design/item/wirer
+	name = "Custom wirer tool"
+	id = "wirer"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
+	materials = list(MAT_METAL = 500, MAT_GLASS = 250)
+	build_type = PROTOLATHE
+	build_path = /obj/item/device/integrated_electronics/wirer
+	category = list("Electronics")
+
+/datum/design/item/debugger
+	name = "Custom circuit debugger tool"
+	id = "debugger"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
+	materials = list(MAT_METAL = 500, MAT_GLASS = 250)
+	build_type = PROTOLATHE
+	build_path = /obj/item/device/integrated_electronics/debugger
+	category = list("Electronics")
+
+/datum/design/circuit/integrated_circuit/AssembleDesignName()
+	..()
+	name = "Custom circuitry ([item_name])"
+
+/datum/design/circuit/integrated_circuit/AssembleDesignDesc()
+	if(!desc)
+		desc = "Allows for the construction of \a [name] custom circuit."
+
+/datum/design/circuit/integrated_circuit/arithmetic/AssembleDesignName()
+	..()
+	name = "Custom circuitry \[Arithmetic\] ([item_name])"
+
+/datum/design/item/custom_circuit_printer
+	name = "Portable integrated circuit printer"
+	desc = "A portable(ish) printer for modular machines."
+	id = "ic_printer"
+	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2, TECH_DATA = 2)
+	materials = list(MAT_METAL = 10000)
+	build_type = PROTOLATHE
+	build_path = /obj/item/device/integrated_circuit_printer
+	category = list("Electronics")
+
+/datum/design/item/custom_circuit_printer_upgrade
+	name = "Integrated circuit printer upgrade - advanced designs"
+	desc = "Allows the integrated circuit printer to create advanced circuits"
+	id = "ic_printer_upgrade_adv"
+	req_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 4)
+	materials = list(MAT_METAL = 2000)
+	build_type = PROTOLATHE
+	build_path = /obj/item/weapon/disk/integrated_circuit/upgrade/advanced
+	category = list("Electronics")
+
+
+/datum/design/circuit/tcom/exonet_node
+	name = "exonet node"
+	id = "tcom-exonet_node"
+	req_tech = list(TECH_DATA = 5, TECH_ENGINEERING = 5, TECH_BLUESPACE = 4)
+	build_path = /obj/item/weapon/circuitboard/telecomms/exonet_node
