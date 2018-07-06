@@ -37,7 +37,8 @@
 
 		if(istype(C, /mob/living/carbon/human))
 			var/mob/living/carbon/human/H = C
-			H.apply_effect((75), IRRADIATE, 0) // Let the bodies hit the floor
+			H.apply_effect((100), IRRADIATE, 0) // Let the bodies hit the floor
+			H.apply_damage(80, TOX) // haha FUCK YOU
 			if(prob(5))
 				H.apply_effect((rand(100, 150)), IRRADIATE, 0)
 			if(prob(50))
