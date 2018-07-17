@@ -101,7 +101,7 @@
 			to_chat(user, "<span class='warning'>\The [src] is too full to add more metal.</span>")
 			return
 		if(stack.amount >= num)
-			stack.use(num)
+			stack.use(Ceiling(num))
 			to_chat(user, "<span class='notice'>You add [num] sheet\s to \the [src].</span>")
 			metal += num * metal_per_sheet
 			interact(user)

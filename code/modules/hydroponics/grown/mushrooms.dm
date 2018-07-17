@@ -19,7 +19,7 @@
 	potency = 15
 	growthstages = 4
 	genes = list(/datum/plant_gene/trait/plant_type/fungal_metabolism)
-	reagents_add = list("morphine" = 0.35, "charcoal" = 0.35, "nutriment" = 0)
+	reagents_add = list("morphine" = 0.35, "anti_toxin" = 0.35, "nutriment" = 0)
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/mushroom/reishi
 	seed = /obj/item/seeds/reishi
