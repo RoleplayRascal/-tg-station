@@ -9,8 +9,8 @@
 ###############################################################################################
 BigSlice = Host
 Sliceocelot = Host
-Kubbrz6 = Trial Admin
-M00nm4nhere = Midimin
 Roleplay Rascal = Game Master
-SpaghettiScience = Midimin
+Benblu = Admin
+Kubbrz6 = Trial Admin
+M00nm4nhere = Trial Admin
 Memeoo = Trial Admin
