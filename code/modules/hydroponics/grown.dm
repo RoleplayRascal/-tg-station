@@ -143,7 +143,9 @@
 
 // Glow gene procs
 /obj/item/weapon/reagent_containers/food/snacks/grown/Destroy()
-	var/datum/plant_gene/trait/glow/G = seed.get_gene(/datum/plant_gene/trait/glow)
+	var/datum/plant_gene/trait/glow/G
+	if(seed)
+		G = seed.get_gene(/datum/plant_gene/trait/glow)
 	if(G && ismob(loc))
 		loc.set_light(-G.get_lum(seed))
 	return ..()
