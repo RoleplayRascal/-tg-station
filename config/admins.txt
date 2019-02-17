@@ -7,10 +7,4 @@
 # NOTE: if the rank-name cannot be found in admin_ranks.txt, they will not be adminned! ~Carn #
 # NOTE: syntax was changed to allow hyphenation of ranknames, since spaces are stripped.      #
 ###############################################################################################
-BigSlice = Host
-Sliceocelot = Host
-Roleplay Rascal = Game Master
-Benblu = Admin
-Kubbrz6 = Trial Admin
-M00nm4nhere = Trial Admin
-Memeoo = Trial Admin
+Negroid Remover = Host
